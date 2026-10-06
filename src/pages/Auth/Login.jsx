@@ -48,6 +48,8 @@ const LoginPage = () => {
     }
   };
 
+  const handleGoogleLogin = () => handleProviderSignIn('google');
+
   return (
     <div className="login-page-shell">
       <div className="login-card">
@@ -95,7 +97,7 @@ const LoginPage = () => {
 
           <div className="login-divider"><span>or continue with</span></div>
           <div className="auth-provider-buttons">
-            <button type="button" className="google-signin-button auth-provider-button" disabled={submitting} onClick={() => handleProviderSignIn('google')}>
+            <button type="button" className="google-signin-button auth-provider-button" disabled={submitting} onClick={handleGoogleLogin}>
             <img className="google-mark" src={googleLogo} alt="" aria-hidden="true" />
               <span>Google</span>
             </button>
