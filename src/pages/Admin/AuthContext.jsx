@@ -5,11 +5,11 @@ const AuthContext = createContext(null);
 const DEFAULT_APP_URL = 'https://mythichq.vercel.app';
 const getSelectedViewerProfileKey = (userId) => `mythichq:selected-viewer-profile:${userId}`;
 
-const getAuthRedirectUrl = () => {
+const getAuthRedirectUrl = (pathname = window.location.pathname) => {
   const isLocalDevelopment = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
   const appUrl = isLocalDevelopment ? window.location.origin : DEFAULT_APP_URL;
 
-  return new URL(window.location.pathname, appUrl).toString();
+  return new URL(pathname, appUrl).toString();
 };
 
 export const AuthProvider = ({ children }) => {
@@ -197,7 +197,7 @@ export const AuthProvider = ({ children }) => {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/login`,
+        emailRedirectTo: getAuthRedirectUrl('/login'),
         data: {
           full_name: fullName || '',
         },
@@ -335,7 +335,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: getAuthRedirectUrl('/reset-password'),
     });
     if (error) throw error;
     return data;
