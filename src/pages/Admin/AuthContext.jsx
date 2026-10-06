@@ -6,7 +6,8 @@ const DEFAULT_APP_URL = 'https://mythichq.vercel.app';
 const getSelectedViewerProfileKey = (userId) => `mythichq:selected-viewer-profile:${userId}`;
 
 const getAuthRedirectUrl = (pathname = window.location.pathname) => {
-  const isLocalDevelopment = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+  const isLocalDevelopment = import.meta.env.DEV
+    && ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
   const appUrl = isLocalDevelopment ? window.location.origin : DEFAULT_APP_URL;
 
   return new URL(pathname, appUrl).toString();
