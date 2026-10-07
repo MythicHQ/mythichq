@@ -24,8 +24,8 @@ import {
 } from 'lucide-react';
 import {
   fetchMovieDetails,
-  getBackdropUrl,
-  getImageUrl,
+  getBackdropDisplayUrl,
+  getPosterDisplayUrl,
   getProfileUrl,
 } from '../services/tmdb';
 import {
@@ -435,13 +435,8 @@ const MovieDetails = ({ onPlayTrailer }) => {
     );
   }
 
-  const resolveMediaUrl = (value, resolver, size) => {
-    if (!value) return null;
-    if (value.startsWith('/') || value.startsWith('http')) return value;
-    return resolver(value, size);
-  };
-  const backdropUrl = resolveMediaUrl(movie.backdrop_path, getBackdropUrl, 'original');
-  const posterUrl = resolveMediaUrl(movie.poster_path, getImageUrl, 'w500');
+  const backdropUrl = getBackdropDisplayUrl(movie.backdrop_path, 'original');
+  const posterUrl = getPosterDisplayUrl(movie.poster_path, 'w500');
   const inWatchlist = isInWatchlist(movie.id);
 
   // Cast & Crew
