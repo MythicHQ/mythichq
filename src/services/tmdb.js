@@ -32,7 +32,7 @@ export const getImageUrl = (path, size = 'w500') => {
 
 export const getPosterDisplayUrl = (path, size = 'w500') => {
   if (!path || path === '/movie-assets/posters/default-poster.jpg') return null;
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
+  if (/^(https?:\/\/|data:)/i.test(path)) return path;
   if (path.startsWith('/movie-assets/')) return path;
   return getImageUrl(path.startsWith('/') ? path : `/${path}`, size);
 };
@@ -44,7 +44,7 @@ export const getBackdropUrl = (path, size = 'w1280') => {
 
 export const getBackdropDisplayUrl = (path, size = 'original') => {
   if (!path || path === '/movie-assets/backdrops/default-backdrop.jpg') return null;
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
+  if (/^(https?:\/\/|data:)/i.test(path)) return path;
   if (path.startsWith('/movie-assets/')) return path;
   return getBackdropUrl(path.startsWith('/') ? path : `/${path}`, size);
 };
