@@ -97,6 +97,11 @@
 }
 
 .movie-detail-section > .section-header { margin-bottom: 15px; }
+.movie-detail-trailer-player { overflow: hidden; border-radius: 12px; background: #050608; }
+.movie-detail-trailer-player iframe,
+.movie-detail-trailer-player video { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; background: #050608; }
+.movie-detail-trailer-player > a { display: flex; min-height: 180px; align-items: center; justify-content: center; gap: 10px; color: #fff; font-weight: 750; text-decoration: none; }
+.movie-detail-trailer-player > a:hover { color: #ff9ca7; }
 .movie-detail-synopsis > p { max-width: 920px; margin: 0; color: rgba(255,255,255,0.71); font-size: 0.91rem; line-height: 1.85; }
 .movie-detail-read-more { margin-top: 11px; color: #ff8792; font-size: 0.75rem; font-weight: 750; }
 .movie-detail-read-more:hover { color: #ffc2c7; }
@@ -153,3 +158,4 @@ a.movie-provider-card:hover { border-color: rgba(255, 122, 139, 0.48); backgroun
   .movie-provider-card,
   .movie-detail-reaction { transition-duration: 0.01ms; }
 }
+
