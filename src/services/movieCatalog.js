@@ -308,8 +308,8 @@ export const normalizeMovieRecord = (movie = {}) => {
     genre_ids: Array.isArray(movie.genre_ids)
       ? movie.genre_ids
       : genres.map((name, index) => Number(Object.keys(GENRES_MAP).find((genreId) => GENRES_MAP[genreId] === name)) || index + 1),
-    poster_path: movie.poster_path || movie.poster_url || movie.poster || '/movie-assets/posters/default-poster.jpg',
-    backdrop_path: movie.backdrop_path || movie.backdrop_url || movie.backdrop || '/movie-assets/backdrops/default-backdrop.jpg',
+    poster_path: movie.poster_url || movie.poster_path || movie.poster || '/movie-assets/posters/default-poster.jpg',
+    backdrop_path: movie.backdrop_url || movie.backdrop_path || movie.backdrop || '/movie-assets/backdrops/default-backdrop.jpg',
     vote_average: Number(movie.vote_average ?? movie.rating ?? 0),
     vote_count: Number(movie.vote_count ?? movie.ratings_count ?? 0),
     runtime: Number(movie.runtime ?? 0),
