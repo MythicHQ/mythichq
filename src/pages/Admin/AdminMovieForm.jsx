@@ -320,8 +320,8 @@ const AdminMovieFormPage = () => {
             setSelectedLanguages(movieLanguages);
             setWatchProviders(mergeStreamingProviders(localMovie.watch_providers, localOttPlatforms));
             setTitleImagePreview(localMovie.title_image_url || '');
-            setPosterPreview(localMovie.poster_path || localMovie.poster_url || '');
-            setBackdropPreview(localMovie.backdrop_path || localMovie.backdrop_url || '');
+            setPosterPreview(localMovie.poster_url || localMovie.poster_path || '');
+            setBackdropPreview(localMovie.backdrop_url || localMovie.backdrop_path || '');
             setMovieTimestamps({ createdAt: localMovie.created_at || '', updatedAt: localMovie.updated_at || '', publishedAt: localMovie.published_at || '' });
             setForm({
               title: localMovie.title || '',
@@ -329,8 +329,8 @@ const AdminMovieFormPage = () => {
               content_type: localMovie.content_type || localMovie.media_type || 'movie',
               description: localMovie.overview || '',
               tagline: localMovie.tagline || '',
-              poster_url: localMovie.poster_path || '',
-              backdrop_url: localMovie.backdrop_path || '',
+              poster_url: localMovie.poster_url || localMovie.poster_path || '',
+              backdrop_url: localMovie.backdrop_url || localMovie.backdrop_path || '',
               trailer_url: localMovie.trailer_key ? `https://www.youtube.com/watch?v=${localMovie.trailer_key}` : '',
               genre: movieGenres.join(', '),
               release_date: localMovie.release_date || '',
@@ -404,8 +404,8 @@ const AdminMovieFormPage = () => {
           content_type: data.content_type || data.media_type || 'movie',
           description: data.description || '',
           tagline: data.tagline || '',
-          poster_url: data.poster_url || '',
-          backdrop_url: data.backdrop_url || '',
+          poster_url: data.poster_url || data.poster_path || '',
+          backdrop_url: data.backdrop_url || data.backdrop_path || '',
           trailer_url: data.trailer_url || '',
           genre: movieGenres.join(', '),
           release_date: data.release_date || '',
@@ -842,8 +842,8 @@ const AdminMovieFormPage = () => {
         languages: selectedLanguages,
         ott: ottPlatforms.join(', '),
         otts: ottPlatforms,
-        poster_url: form.poster_url && !form.poster_url.startsWith('blob:') ? form.poster_url : '',
-        backdrop_url: form.backdrop_url && !form.backdrop_url.startsWith('blob:') ? form.backdrop_url : '',
+        poster_url: form.poster_url && !form.poster_url.startsWith('blob:') ? String(form.poster_url).trim() : '',
+        backdrop_url: form.backdrop_url && !form.backdrop_url.startsWith('blob:') ? String(form.backdrop_url).trim() : '',
         runtime: Number(form.runtime || 0),
         rating: Number(form.rating || 0),
         vote_count: 0,
