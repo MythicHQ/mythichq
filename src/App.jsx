@@ -32,6 +32,7 @@ import AdminCastDetailsPage from './pages/Admin/AdminCastDetails';
 import Home from './pages/Home';
 import WelcomePage from './pages/in';
 import Movies from './pages/Movies';
+import TvShows from './pages/TvShows';
 import Trending from './pages/Trending';
 import TopRated from './pages/TopRated';
 import Genres from './pages/Genres';
@@ -40,6 +41,7 @@ import GenreDetail from './pages/GenreDetail';
 import Upcoming from './pages/Upcoming';
 import SearchPage from './pages/Search';
 import MovieDetails from './pages/MovieDetails';
+import CastMemberProfile from './pages/CastMemberProfile';
 import Watchlist from './pages/Watchlist';
 import Discovery from './pages/Discovery';
 import LoginPage from './pages/Auth/Login';
@@ -196,6 +198,7 @@ function AppContent() {
           <Route path="/" element={<RootRoute onPlayTrailer={handlePlayTrailer} onOpenPicker={() => setPickerOpen(true)} />} />
           <Route path="/movie" element={<ProtectedRoute><Home onPlayTrailer={handlePlayTrailer} onOpenPicker={() => setPickerOpen(true)} /></ProtectedRoute>} />
           <Route path="/movies" element={<Movies onPlayTrailer={handlePlayTrailer} />} />
+          <Route path="/tv-shows" element={<TvShows onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/discovery" element={<Discovery onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/trending" element={<Trending onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/top-rated" element={<TopRated onPlayTrailer={handlePlayTrailer} />} />
@@ -205,6 +208,7 @@ function AppContent() {
           <Route path="/upcoming" element={<Upcoming onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/search" element={<SearchPage onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/movie/:movieIdentifier" element={<MovieDetails onPlayTrailer={handlePlayTrailer} />} />
+          <Route path="/cast/:castMemberIdentifier" element={<CastMemberProfile />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
