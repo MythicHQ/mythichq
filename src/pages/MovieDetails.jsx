@@ -81,6 +81,24 @@ const MOVIE_BADGE_LABELS = {
 
 const isSafeHttpUrl = (value) => /^https?:\/\//i.test(String(value || '').trim());
 
+const getYouTubeVideoId = (value) => {
+  if (!value || typeof value !== 'string') return '';
+  const trimmedValue = value.trim();
+  if (/^[A-Za-z0-9_-]{11}$/.test(trimmedValue)) return trimmedValue;
+
+  try {
+    const url = new URL(trimmedValue);
+    const host = url.hostname.toLowerCase().replace(/^www\./, '');
+    if (!['youtube.com', 'youtube-nocookie.com', 'm.youtube.com', 'youtu.be'].includes(host)) return '';
+    const videoId = host === 'youtu.be'
+      ? url.pathname.split('/').filter(Boolean)[0]
+      : url.searchParams.get('v') || url.pathname.match(/^\/(?:embed|shorts|live)\/([^/?]+)/)?.[1];
+    return /^[A-Za-z0-9_-]{11}$/.test(videoId || '') ? videoId : '';
+  } catch {
+    return '';
+  }
+};
+
 const formatMoney = (value) => {
   const amount = Number(value);
   if (!Number.isFinite(amount) || amount <= 0) return '';
@@ -448,6 +466,11 @@ const MovieDetails = ({ onPlayTrailer }) => {
   const trailerObj =
     movie.videos?.results?.find((v) => v.site === 'YouTube' && v.type === 'Trailer') ||
     movie.videos?.results?.find((v) => v.site === 'YouTube');
+  const trailerVideoId = getYouTubeVideoId(trailerObj?.key)
+    || getYouTubeVideoId(movie.trailer_key)
+    || getYouTubeVideoId(movie.trailer_url);
+  const trailerUrl = isSafeHttpUrl(movie.trailer_url) ? movie.trailer_url.trim() : '';
+  const isDirectVideo = /\.(mp4|webm|ogg)(?:$|[?#])/i.test(trailerUrl);
   const ottPlatforms = [...new Set((Array.isArray(movie.otts)
     ? movie.otts
     : typeof movie.ott === 'string'
@@ -646,10 +669,16 @@ const MovieDetails = ({ onPlayTrailer }) => {
 
               {/* Action CTA Buttons */}
               <div className="details-cta-buttons">
-                {(trailerObj?.key || movie.trailer_key) && (
+                {(trailerVideoId || trailerUrl) && (
                   <button
                     className="btn-primary btn-cta-large"
-                    onClick={() => onPlayTrailer && onPlayTrailer(movie, trailerObj?.key || movie.trailer_key)}
+                    onClick={() => {
+                      if (trailerVideoId && onPlayTrailer) {
+                        onPlayTrailer(movie, trailerVideoId);
+                      } else {
+                        document.getElementById('movie-trailer')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                    }}
                   >
                     <Play size={22} fill="#FFFFFF" />
                     <span>Watch Trailer</span>
@@ -751,6 +780,29 @@ const MovieDetails = ({ onPlayTrailer }) => {
 
       {/* 2. CAST & CREW CAROUSEL */}
       <div className="main-content-wrapper">
+        {(trailerVideoId || trailerUrl) && (
+          <section className="movie-detail-section movie-detail-trailer" id="movie-trailer" aria-labelledby="movie-trailer-heading">
+            <div className="section-header"><h2 id="movie-trailer-heading">Trailer</h2></div>
+            <div className="movie-detail-trailer-player">
+              {trailerVideoId ? (
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${trailerVideoId}?rel=0`}
+                  title={`${movie.title} trailer`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              ) : isDirectVideo ? (
+                <video src={trailerUrl} controls preload="metadata" />
+              ) : (
+                <a href={trailerUrl} target="_blank" rel="noopener noreferrer">
+                  <Play size={22} fill="currentColor" />
+                  <span>Open trailer</span>
+                </a>
+              )}
+            </div>
+          </section>
+        )}
         <section className="movie-detail-section movie-detail-synopsis" aria-labelledby="movie-synopsis-heading">
           <div className="section-header">
             <h2 id="movie-synopsis-heading">Synopsis</h2>
