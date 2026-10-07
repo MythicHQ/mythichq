@@ -37,14 +37,14 @@ export const resolveMovieMediaPaths = async (movie) => {
   if (!movie) return movie;
 
   const [posterPath, backdropPath] = await Promise.all([
-    getSignedMovieAssetUrl(movie.poster_path || movie.poster_url || movie.poster || ''),
-    getSignedMovieAssetUrl(movie.backdrop_path || movie.backdrop_url || movie.backdrop || ''),
+    getSignedMovieAssetUrl(movie.poster_url || movie.poster_path || movie.poster || ''),
+    getSignedMovieAssetUrl(movie.backdrop_url || movie.backdrop_path || movie.backdrop || ''),
   ]);
 
   return {
     ...movie,
-    poster_path: posterPath || movie.poster_path || movie.poster_url || movie.poster || '',
-    backdrop_path: backdropPath || movie.backdrop_path || movie.backdrop_url || movie.backdrop || '',
+    poster_path: posterPath || movie.poster_url || movie.poster_path || movie.poster || '',
+    backdrop_path: backdropPath || movie.backdrop_url || movie.backdrop_path || movie.backdrop || '',
     poster_url: movie.poster_url || posterPath || movie.poster_path || movie.poster || '',
     backdrop_url: movie.backdrop_url || backdropPath || movie.backdrop_path || movie.backdrop || '',
   };
