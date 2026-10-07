@@ -61,7 +61,10 @@ export const loadCastMembers = async ({ page = 0, pageSize = 24, query = '' } = 
 
 export const getCastMember = async (id) => {
   const client = requireClient();
-  const { data, error } = await client.from('cast_members').select('*').eq('id', id).maybeSingle();
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id || ''));
+  const { data, error } = await client.from('cast_members').select('*')
+    .eq(isUuid ? 'id' : 'full_name', id)
+    .maybeSingle();
   if (error) throw error;
   if (!data) throw new Error('Cast member not found.');
   return resolveCastMember(data);
@@ -124,6 +127,7 @@ export const fetchMovieCastMembers = async (movieId) => {
   return Promise.all((data || []).filter((row) => row.cast_members).map(async (row) => ({
     ...row.cast_members,
     id: row.cast_member_id,
+    cast_member_id: row.cast_member_id,
     character_name: row.character_name || '',
     display_order: row.cast_order,
     image_url: await getSignedMovieAssetUrl(row.cast_members.profile_image),
@@ -147,7 +151,7 @@ export const saveMovieCastMembers = async (movieId, members) => {
   if (error) throw error;
 };
 
-export const loadCastMemberMovies = async (castMemberId) => {
+export const loadCastMemberMovies = async (castMemberId, { publishedOnly = false } = {}) => {
   const client = requireClient();
   const { data: links, error: linksError } = await client.from('movie_cast')
     .select('id, movie_id, cast_member_id, character_name, cast_order')
@@ -161,12 +165,18 @@ export const loadCastMemberMovies = async (castMemberId) => {
     .select('id, title, release_date, poster_url, movie_status, is_published')
     .in('id', movieIds);
   if (moviesError) throw moviesError;
-  const movieById = new Map((movies || []).map((movie) => [String(movie.id), movie]));
-  return Promise.all(links.filter((link) => movieById.has(String(link.movie_id))).map(async (link) => ({
-    ...link,
-    movie: await getSignedMovieAssetUrl(movieById.get(String(link.movie_id))?.poster_url || ''),
-    movie_record: movieById.get(String(link.movie_id)),
-  })));
+  const movieById = new Map((movies || [])
+    .filter((movie) => !publishedOnly || movie.is_published === true)
+    .map((movie) => [String(movie.id), movie]));
+  return Promise.all(links.filter((link) => movieById.has(String(link.movie_id))).map(async (link) => {
+    const movieRecord = movieById.get(String(link.movie_id));
+    const posterUrl = await getSignedMovieAssetUrl(movieRecord.poster_url || '');
+    return {
+      ...link,
+      movie: posterUrl,
+      movie_record: { ...movieRecord, poster_url: posterUrl },
+    };
+  }));
 };
 
 export const searchMoviesForCast = async (query, { limit = 12 } = {}) => {
