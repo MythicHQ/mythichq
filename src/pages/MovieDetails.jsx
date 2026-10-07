@@ -217,6 +217,7 @@ const MovieDetails = ({ onPlayTrailer }) => {
             || '';
           return ({
           id: person.id,
+          castMemberId: person.cast_member_id || (centralizedCast.length ? person.id : ''),
           name,
           character: characterName,
           profile_path: person.image_url || person.profile_image_url || '',
@@ -508,7 +509,8 @@ const MovieDetails = ({ onPlayTrailer }) => {
       imageUrl: isSafeHttpUrl(person.image_url) ? person.image_url : '',
     }));
   const fallbackCastCards = cast.map((actor) => ({
-    id: actor.id,
+    id: actor.castMemberId || actor.id || actor.name,
+    castMemberId: actor.castMemberId || '',
     name: actor.name || 'Unknown cast member',
     character: actor.character || '',
     imageUrl: actor.profile_path?.startsWith?.('http')
@@ -850,7 +852,12 @@ const MovieDetails = ({ onPlayTrailer }) => {
             <div className="cast-grid">
               {castCrewCards.map((person) => {
                 return (
-                  <article key={person.id} className="cast-card movie-credits-card">
+                  <Link
+                    key={person.id}
+                    className="cast-card movie-credits-card movie-cast-profile-link"
+                    to={`/cast/${encodeURIComponent(person.castMemberId || person.name)}`}
+                    aria-label={`View ${person.name}'s cast profile`}
+                  >
                     {person.imageUrl ? (
                       <img src={person.imageUrl} alt="" className="cast-avatar" loading="lazy" />
                     ) : (
@@ -859,8 +866,9 @@ const MovieDetails = ({ onPlayTrailer }) => {
                     <div className="cast-info">
                       <h4>{person.name}</h4>
                       <p>{person.character || 'Actor'}</p>
+                      <span className="movie-cast-profile-hint">View profile</span>
                     </div>
-                  </article>
+                  </Link>
                 );
               })}
             </div>
