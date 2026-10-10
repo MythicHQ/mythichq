@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const MovieRail = ({ children }) => {
+const MovieRail = ({ children, hideScrollbar = false }) => {
   const railRef = useRef(null);
 
   const moveRail = (direction) => {
@@ -9,7 +9,7 @@ const MovieRail = ({ children }) => {
   };
 
   return (
-    <div className="movie-rail">
+    <div className={`movie-rail${hideScrollbar ? ' hide-scrollbar' : ''}`}>
       <button className="movie-rail-arrow movie-rail-arrow-left" onClick={() => moveRail(-1)} aria-label="Show previous movies">
         <ChevronLeft size={22} />
       </button>
