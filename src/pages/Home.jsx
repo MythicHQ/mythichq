@@ -147,7 +147,7 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
             </Link>
           </div>
 
-          <MovieRail>
+          <MovieRail hideScrollbar>
             {loading ? (
               <SkeletonCard count={6} />
             ) : (
