@@ -8,7 +8,7 @@ import { getMovieDetailRoute } from '../services/movieCatalog';
 import RatingBadge from './RatingBadge';
 import CropImage from './CropImage';
 
-const MovieCard = ({ movie, rank = null, trendingRank = false, showTitle = true, showMetadata = false, showWatchlist = true, recommendationCard = false, onMovieClick = null, onWatchlistClick = null }) => {
+const MovieCard = ({ movie, rank = null, trendingRank = false, showTitle = true, showMetadata = false, showWatchlist = true, recommendationCard = false, variant = 'default', onMovieClick = null, onWatchlistClick = null }) => {
   const navigate = useNavigate();
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
 
@@ -64,7 +64,7 @@ const MovieCard = ({ movie, rank = null, trendingRank = false, showTitle = true,
 
   return (
     <div
-      className={`movie-card${recommendationCard ? ' movie-card-recommendation' : ''}${trendingRank ? ' movie-card-trending-rank' : ''}`}
+      className={`movie-card${recommendationCard ? ' movie-card-recommendation' : ''}${trendingRank ? ' movie-card-trending-rank' : ''}${variant === 'home' ? ' home-movie-card' : ''}`}
       onClick={handleCardClick}
       onKeyDown={(event) => {
         if (event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) return;
@@ -139,16 +139,30 @@ const MovieCard = ({ movie, rank = null, trendingRank = false, showTitle = true,
 
       {/* Card Content Info */}
       {showTitle && (
-        <div className="movie-card-info">
-          {showMetadata && !rank && (
-            <div className="movie-card-header">
-              <RatingBadge rating={movie.vote_average || 0} size="small" />
-              <span className="movie-card-year">{releaseYear}</span>
-            </div>
+        <div className={`movie-card-info${variant === 'home' ? ' home-card-info' : ''}`}>
+          {variant === 'home' ? (
+            <>
+              <div className="home-card-metadata">
+                <RatingBadge rating={movie.vote_average || 0} size="small" />
+                <span className="movie-card-year">{releaseYear}</span>
+              </div>
+              <h3 className="movie-card-title home-card-title" title={movie.title}>
+                {movie.title}
+              </h3>
+            </>
+          ) : (
+            <>
+              {showMetadata && !rank && (
+                <div className="movie-card-header">
+                  <RatingBadge rating={movie.vote_average || 0} size="small" />
+                  <span className="movie-card-year">{releaseYear}</span>
+                </div>
+              )}
+              <h3 className="movie-card-title" title={movie.title}>
+                {movie.title}
+              </h3>
+            </>
           )}
-          <h3 className="movie-card-title" title={movie.title}>
-            {movie.title}
-          </h3>
         </div>
       )}
     </div>
