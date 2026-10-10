@@ -152,7 +152,7 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
               <SkeletonCard count={6} />
             ) : (
               trending.map((movie, idx) => (
-                <MovieCard key={`${movie.record_type || 'movie'}-${movie.id}`} movie={movie} rank={idx + 1} trendingRank showTitle={false} onPlayTrailer={onPlayTrailer} />
+                <MovieCard key={`${movie.record_type || 'movie'}-${movie.id}`} movie={movie} rank={idx + 1} trendingRank showTitle={false} showWatchlist={false} variant="home" onPlayTrailer={onPlayTrailer} />
               ))
             )}
           </MovieRail>
@@ -178,7 +178,7 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
               <SkeletonCard count={6} />
             ) : (
               nowPlaying.map((movie) => (
-                <MovieCard key={`${movie.record_type || 'movie'}-${movie.id}`} movie={movie} onPlayTrailer={onPlayTrailer} />
+                <MovieCard key={`${movie.record_type || 'movie'}-${movie.id}`} movie={movie} variant="home" showWatchlist={false} onPlayTrailer={onPlayTrailer} />
               ))
             )}
           </MovieRail>
@@ -204,7 +204,7 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
               <SkeletonCard count={6} />
             ) : (
               topRated.map((movie) => (
-                <MovieCard key={`${movie.record_type || 'movie'}-${movie.id}`} movie={movie} onPlayTrailer={onPlayTrailer} />
+                <MovieCard key={`${movie.record_type || 'movie'}-${movie.id}`} movie={movie} variant="home" showWatchlist={false} onPlayTrailer={onPlayTrailer} />
               ))
             )}
           </MovieRail>
@@ -227,7 +227,7 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
               <SkeletonCard count={6} />
             ) : (
               hiddenGems.map((movie) => (
-                <MovieCard key={`${movie.record_type || 'movie'}-${movie.id}`} movie={movie} onPlayTrailer={onPlayTrailer} />
+                <MovieCard key={`${movie.record_type || 'movie'}-${movie.id}`} movie={movie} variant="home" showWatchlist={false} onPlayTrailer={onPlayTrailer} />
               ))
             )}
           </MovieRail>
@@ -291,7 +291,7 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
               <SkeletonCard count={6} />
             ) : (
               upcoming.map((movie) => (
-                <MovieCard key={`${movie.record_type || 'movie'}-${movie.id}`} movie={movie} onPlayTrailer={onPlayTrailer} />
+                <MovieCard key={`${movie.record_type || 'movie'}-${movie.id}`} movie={movie} variant="home" showWatchlist={false} onPlayTrailer={onPlayTrailer} />
               ))
             )}
           </MovieRail>
