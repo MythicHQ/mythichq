@@ -1,11 +1,29 @@
 import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const MovieRail = ({ children, hideScrollbar = false }) => {
+const MovieRail = ({ children, hideScrollbar = false, loop = false }) => {
   const railRef = useRef(null);
 
   const moveRail = (direction) => {
-    railRef.current?.scrollBy({ left: direction * 620, behavior: 'smooth' });
+    const rail = railRef.current;
+    if (!rail) return;
+
+    const maxScrollLeft = rail.scrollWidth - rail.clientWidth;
+    if (loop && maxScrollLeft > 0) {
+      const atStart = rail.scrollLeft <= 1;
+      const atEnd = rail.scrollLeft >= maxScrollLeft - 1;
+
+      if (direction < 0 && atStart) {
+        rail.scrollTo({ left: maxScrollLeft, behavior: 'smooth' });
+        return;
+      }
+      if (direction > 0 && atEnd) {
+        rail.scrollTo({ left: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+
+    rail.scrollBy({ left: direction * 620, behavior: 'smooth' });
   };
 
   return (
