@@ -223,9 +223,10 @@
 .nav-search-suggestions button {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   width: 100%;
-  padding: 10px;
+  min-height: 62px;
+  padding: 6px 8px;
   border: 0;
   border-radius: 6px;
   color: var(--text-primary);
@@ -235,7 +236,23 @@
 }
 
 .nav-search-suggestions button:hover { background: rgba(255, 255, 255, 0.08); }
-.nav-search-suggestions small { color: var(--text-muted); }
+.nav-search-suggestion-poster,
+.nav-search-suggestion-poster-fallback {
+  display: grid;
+  width: 34px;
+  height: 48px;
+  flex: 0 0 34px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  object-fit: cover;
+}
+.nav-search-suggestion-copy { display: grid; flex: 1; min-width: 0; gap: 4px; }
+.nav-search-suggestion-copy strong { overflow: hidden; font-size: 0.82rem; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.nav-search-suggestion-copy small { color: var(--text-muted); font-size: 0.68rem; }
 
 .btn-picker-nav {
   display: flex;
