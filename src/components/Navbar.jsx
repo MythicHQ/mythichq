@@ -24,7 +24,8 @@ import { useWatchlist } from '../pages/Admin/WatchlistContext';
 import { useAuth } from '../pages/Admin/AuthContext';
 import { useNotifications } from '../pages/Admin/NotificationContext';
 import RandomPickerModal from './RandomPickerModal';
-import { fetchPublicMovies } from '../services/movieCatalog';
+import { fetchPublicMovies, getMovieDetailRoute } from '../services/movieCatalog';
+import { getPosterDisplayUrl } from '../services/tmdb';
 import { getProfileAvatarUrl } from '../services/profileIcons';
 import ViewerProfileAvatar from './ViewerProfileAvatar';
 import CropImage from './CropImage';
@@ -470,31 +471,45 @@ const Navbar = ({ onPlayTrailer }) => {
               {normalizeSearchText(quickSearch).length >= 2 &&
                 quickSuggestions.length > 0 && (
                   <div className="nav-search-suggestions">
-                    {quickSuggestions.map((movie) => (
-                      <button
-                        key={`${movie.record_type || 'movie'}-${movie.id}`}
-                        type="button"
-                        onMouseDown={(event) =>
-                          event.preventDefault()
-                        }
-                        onClick={() => {
-                          navigate(
-                            `/search?q=${encodeURIComponent(
-                              movie.title
-                            )}`
-                          );
-
-                          setQuickSearch('');
-                          setSearchOpen(false);
-                        }}
-                      >
-                        <span>{movie.title}</span>
-
-                        <small>
-                          {movie.release_date?.slice(0, 4)}
-                        </small>
-                      </button>
-                    ))}
+                    {quickSuggestions.map((movie) => {
+                      const posterUrl = getPosterDisplayUrl(movie.poster_path, 'w92');
+                      return (
+                        <button
+                          key={`${movie.record_type || 'movie'}-${movie.id}`}
+                          type="button"
+                          onMouseDown={(event) => event.preventDefault()}
+                          onClick={() => {
+                            navigate(getMovieDetailRoute(movie));
+                            setQuickSearch('');
+                            setSearchOpen(false);
+                          }}
+                        >
+                          {posterUrl ? (
+                            <img
+                              className="nav-search-suggestion-poster"
+                              src={posterUrl}
+                              alt=""
+                              loading="lazy"
+                              onError={(event) => {
+                                event.currentTarget.style.display = 'none';
+                                event.currentTarget.nextElementSibling.style.display = 'grid';
+                              }}
+                            />
+                          ) : null}
+                          <span
+                            className="nav-search-suggestion-poster-fallback"
+                            style={{ display: posterUrl ? 'none' : 'grid' }}
+                            aria-hidden="true"
+                          >
+                            {movie.record_type === 'tv_show' ? <Tv size={15} /> : <Film size={15} />}
+                          </span>
+                          <span className="nav-search-suggestion-copy">
+                            <strong>{movie.title}</strong>
+                            <small>{movie.record_type === 'tv_show' ? 'TV Show' : 'Movie'} · {movie.release_date?.slice(0, 4) || 'TBA'}</small>
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
             </form>
