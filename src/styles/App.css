@@ -922,8 +922,16 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.horizontal-scroll-container::-webkit-scrollbar {
-  height: 6px;
+.movie-rail.hide-scrollbar .horizontal-scroll-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.movie-rail.hide-scrollbar .horizontal-scroll-container::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
 .movie-rail {
