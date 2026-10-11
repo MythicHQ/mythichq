@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useLocation, useNavigationType } from 'react-router-dom';
 import { useAuth } from './pages/Admin/AuthContext';
 import { WatchlistProvider } from './pages/Admin/WatchlistContext';
 import { NotificationProvider } from './pages/Admin/NotificationContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import PublicInfoLayout from './components/PublicInfoLayout';
 import TrailerModal from './components/TrailerModal';
 import RandomPickerModal from './components/RandomPickerModal';
 import Toast from './components/Toast';
@@ -27,9 +28,13 @@ import AdminUsersPage from './pages/Admin/AdminUsers';
 import AdminSettingsPage from './pages/Admin/AdminSettings';
 import AdminContactMessagesPage from './pages/Admin/AdminContactMessages';
 import AdminProfileIconsPage from './pages/Admin/AdminProfileIcons';
+import AdminBrowseCategoriesPage from './pages/Admin/AdminBrowseCategories';
+import AdminLanguagesPage from './pages/Admin/AdminLanguages';
 import AdminOttPlatformsPage from './pages/Admin/AdminOttPlatforms';
 import AdminCastPage from './pages/Admin/AdminCast';
 import AdminCastDetailsPage from './pages/Admin/AdminCastDetails';
+import AdminStudiosPage from './pages/Admin/AdminStudios';
+import { TrendingRankProvider } from './contexts/TrendingRankContext';
 
 import Home from './pages/Home';
 import WelcomePage from './pages/in';
@@ -37,6 +42,7 @@ import Movies from './pages/Movies';
 import TvShows from './pages/TvShows';
 import Trending from './pages/Trending';
 import TopRated from './pages/TopRated';
+import NewReleases from './pages/NewReleases';
 import Genres from './pages/Genres';
 import LanguagesPage from './pages/Languages';
 import GenreDetail from './pages/GenreDetail';
@@ -54,12 +60,15 @@ import ResetPasswordPage from './pages/Auth/ResetPassword';
 import ProfileSetupPage from './pages/Auth/ProfileSetup';
 import ProfilesPage from './pages/Profiles';
 import ProfilePage from './pages/Profile';
+import SettingsPage from './pages/Settings';
+import { StudiosPage, StudioDetailPage } from './pages/Studios';
 import HelpPage from './pages/Help';
 import ContactPage from './pages/Contact';
 import AboutPage from './pages/About';
 import PrivacyPolicyPage from './pages/PrivacyPolicy';
 import TermsOfServicePage from './pages/TermsOfService';
 import { fetchPublicMovies } from './services/movieCatalog';
+import { applyAppearanceSettings, loadCachedAppearance } from './services/userSettings';
 
 import './styles/index.css';
 import './styles/App.css';
@@ -122,6 +131,10 @@ const PROFILE_FLOW_EXEMPT_PATHS = [
   '/register',
   '/forgot-password',
   '/reset-password',
+  '/help',
+  '/contact',
+  '/privacy-policy',
+  '/terms-of-service',
 ];
 
 function AppContent() {
@@ -129,8 +142,21 @@ function AppContent() {
   const { user, profile, selectedViewerProfile, loading } = useAuth();
   const [trailerState, setTrailerState] = useState({ isOpen: false, movie: null, videoKey: null });
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [trailerAutoplay, setTrailerAutoplay] = useState(() => loadCachedAppearance().trailerAutoplay);
   const [isOffline, setIsOffline] = useState(() => !navigator.onLine);
   const prefetchStarted = useRef(false);
+
+  useEffect(() => {
+    const appearance = loadCachedAppearance();
+    applyAppearanceSettings(appearance);
+    setTrailerAutoplay(appearance.trailerAutoplay);
+    const handleAppearanceChange = (event) => {
+      applyAppearanceSettings(event.detail?.appearance);
+      setTrailerAutoplay(event.detail?.appearance?.trailerAutoplay === true);
+    };
+    window.addEventListener('mythichq:user-settings-updated', handleAppearanceChange);
+    return () => window.removeEventListener('mythichq:user-settings-updated', handleAppearanceChange);
+  }, []);
 
   useEffect(() => {
     const handleOffline = () => setIsOffline(true);
@@ -164,6 +190,7 @@ function AppContent() {
 
   const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password', '/complete-profile', '/profiles'].includes(location.pathname)
     || (!user && ['/', '/movie'].includes(location.pathname));
+  const isPublicInfoPage = ['/help', '/contact', '/privacy-policy', '/terms-of-service'].includes(location.pathname);
 
   const handlePlayTrailer = useCallback((movie, videoKey = null) => {
     setTrailerState({ isOpen: true, movie, videoKey });
@@ -177,15 +204,20 @@ function AppContent() {
     return <OfflinePage />;
   }
 
+  if (isPublicInfoPage && loading) {
+    return <div className="app-layout"><main className="app-main page-container auth-page-shell"><LoadingIndicator label="Checking your session..." /></main></div>;
+  }
+
   if (user && loading) {
     return <div className="page-container auth-page-shell"><LoadingIndicator label="Loading your profile..." /></div>;
   }
 
-  if (user && profile?.profile_completed === false && location.pathname !== '/complete-profile') {
+  if (user && profile?.profile_completed === false && location.pathname !== '/complete-profile' && !isPublicInfoPage) {
     return <Navigate to="/complete-profile" replace />;
   }
 
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isStandalonePublicPage = isPublicInfoPage && !user;
   const isProfileFlowExempt = PROFILE_FLOW_EXEMPT_PATHS.includes(location.pathname);
   if (user && !selectedViewerProfile && !isAdminRoute && !isProfileFlowExempt) {
     return <Navigate to="/profiles" replace state={{ from: location }} />;
@@ -193,7 +225,7 @@ function AppContent() {
 
   return (
     <div className="app-layout">
-      {!isAuthPage && <Navbar onPlayTrailer={handlePlayTrailer} />}
+      {!isAuthPage && !isStandalonePublicPage && <Navbar onPlayTrailer={handlePlayTrailer} />}
       <RouteScrollRestoration />
 
       <main className="app-main">
@@ -205,6 +237,7 @@ function AppContent() {
           <Route path="/discovery" element={<Discovery onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/trending" element={<Trending onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/top-rated" element={<TopRated onPlayTrailer={handlePlayTrailer} />} />
+          <Route path="/new-releases" element={<NewReleases onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/genres" element={<Genres />} />
           <Route path="/languages" element={<LanguagesPage />} />
           <Route path="/genre/:id" element={<GenreDetail onPlayTrailer={handlePlayTrailer} />} />
@@ -213,6 +246,8 @@ function AppContent() {
           <Route path="/movie/:movieIdentifier" element={<MovieDetails onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/tv-show/:identifier" element={<TvShowDetails onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/cast/:castMemberIdentifier" element={<CastMemberProfile />} />
+          <Route path="/studios" element={<StudiosPage />} />
+          <Route path="/studios/:slug" element={<StudioDetailPage onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -222,12 +257,15 @@ function AppContent() {
 
           <Route path="/watchlist" element={<ProtectedRoute><Watchlist onPlayTrailer={handlePlayTrailer} /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-          <Route path="/help" element={<HelpPage />} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
           <Route path="/entertainment" element={<Movies onPlayTrailer={handlePlayTrailer} />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route element={isStandalonePublicPage ? <PublicInfoLayout /> : <Outlet />}>
+            <Route path="/help" element={<HelpPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          </Route>
 
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<ProtectedRoute adminOnly redirectTo="/admin/login"><AdminLayout /></ProtectedRoute>}>
@@ -250,17 +288,21 @@ function AppContent() {
             <Route path="contact-messages" element={<AdminContactMessagesPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="profile-icons" element={<AdminProfileIconsPage />} />
+            <Route path="browse-categories" element={<AdminBrowseCategoriesPage />} />
+            <Route path="languages" element={<AdminLanguagesPage />} />
+            <Route path="studios" element={<AdminStudiosPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
           </Route>
         </Routes>
       </main>
 
-      {!isAuthPage && <Footer />}
+      {!isAuthPage && !isStandalonePublicPage && <Footer />}
 
       {trailerState.isOpen && (
         <TrailerModal
           movie={trailerState.movie}
           videoKey={trailerState.videoKey}
+          autoPlay={trailerAutoplay}
           onClose={handleCloseTrailer}
         />
       )}
@@ -281,7 +323,9 @@ export default function App() {
   return (
     <WatchlistProvider>
       <NotificationProvider>
-        <AppContent />
+        <TrendingRankProvider>
+          <AppContent />
+        </TrendingRankProvider>
       </NotificationProvider>
     </WatchlistProvider>
   );
