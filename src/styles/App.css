@@ -2231,14 +2231,15 @@
   min-width: 0;
   height: 166px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 0;
   border-radius: 14px;
   background-color: color-mix(in srgb, var(--genre-color) 42%, #111217);
   background-position: center;
   background-size: cover;
   isolation: isolate;
   text-decoration: none;
-  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+  transition: transform 180ms ease, box-shadow 180ms ease;
 }
 .genre-card-large::before {
   position: absolute;
@@ -2282,7 +2283,7 @@
   height: 37px;
   flex: 0 0 37px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 0;
   border-radius: 11px;
   background: rgba(12, 12, 17, 0.58);
   font-size: 1.12rem;
@@ -2306,7 +2307,7 @@
   flex: 0 0 30px;
   place-items: center;
   margin-left: auto;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 0;
   border-radius: 50%;
   color: #fff;
   background: rgba(10, 10, 14, 0.32);
@@ -2314,8 +2315,7 @@
 }
 .genre-card-large:hover {
   transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--genre-color) 72%, white);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 .genre-card-large:hover .genre-card-arrow { transform: translate(2px, -2px); background: rgba(229, 9, 20, 0.72); }
 .genre-card-large:focus-visible { outline: 2px solid #ff9aa6; outline-offset: 3px; }
