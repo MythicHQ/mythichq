@@ -1,6 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Clapperboard, Film, Sparkles } from 'lucide-react';
+import { BROWSE_CATEGORIES } from '../data/browseCategories';
+import { fetchBrowseCategoryImages, subscribeToBrowseCategoryImages } from '../services/browseCategoryImages';
 import { usePublicCatalog } from '../hooks/usePublicCatalog';
 
 const ALL_GENRES_DATA = [
@@ -24,6 +26,27 @@ const ALL_GENRES_DATA = [
 
 const Genres = () => {
   const { movies, loading } = usePublicCatalog();
+  const [browseCategoryImages, setBrowseCategoryImages] = useState({});
+
+  useEffect(() => {
+    let isMounted = true;
+    const refreshCategoryImages = () => {
+      fetchBrowseCategoryImages()
+        .then((images) => {
+          if (isMounted) setBrowseCategoryImages(images);
+        })
+        .catch((error) => console.warn('Genre category images could not be refreshed:', error));
+    };
+
+    const unsubscribe = subscribeToBrowseCategoryImages(refreshCategoryImages);
+    refreshCategoryImages();
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
+
   const genreCatalog = useMemo(() => {
     const result = Object.fromEntries(ALL_GENRES_DATA.map((genre) => [genre.id, { count: 0, image: '' }]));
 
@@ -50,8 +73,15 @@ const Genres = () => {
       });
     });
 
+    BROWSE_CATEGORIES.forEach((category) => {
+      const adminImage = browseCategoryImages[category.id]?.image_url;
+      if (!result[category.id]) return;
+      if (!result[category.id].image && adminImage) result[category.id].image = adminImage;
+      if (!result[category.id].image) result[category.id].image = category.bg;
+    });
+
     return result;
-  }, [movies]);
+  }, [browseCategoryImages, movies]);
 
   return (
     <div className="page-container genres-page">
@@ -86,7 +116,7 @@ const Genres = () => {
                 key={genre.id}
                 to={`/genre/${genre.id}`}
                 className="genre-card-large"
-                style={{ '--genre-color': genre.color, '--genre-index': index, backgroundImage: catalogEntry.image ? `url("${catalogEntry.image}")` : 'none' }}
+                style={{ '--genre-color': genre.color, '--genre-index': index, backgroundImage: catalogEntry.image ? `url("${catalogEntry.image}")` : `url("${BROWSE_CATEGORIES.find((item) => item.id === genre.id)?.bg || ''}")` }}
               >
                 <span className="genre-card-art" aria-hidden="true" />
                 <span className="genre-card-number">{String(index + 1).padStart(2, '0')}</span>
