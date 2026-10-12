@@ -76,7 +76,7 @@ const Genres = () => {
     BROWSE_CATEGORIES.forEach((category) => {
       const adminImage = browseCategoryImages[category.id]?.image_url;
       if (!result[category.id]) return;
-      if (!result[category.id].image && adminImage) result[category.id].image = adminImage;
+      if (adminImage) result[category.id].image = adminImage;
       if (!result[category.id].image) result[category.id].image = category.bg;
     });
 
