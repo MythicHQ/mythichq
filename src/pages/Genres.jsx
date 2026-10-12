@@ -1,70 +1,108 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Grid, ChevronRight } from 'lucide-react';
+import { ArrowUpRight, Clapperboard, Film, Sparkles } from 'lucide-react';
 import { usePublicCatalog } from '../hooks/usePublicCatalog';
 
 const ALL_GENRES_DATA = [
-  { id: 28, name: 'Action', icon: '💥', count: '12,400+ Movies', bg: 'https://image.tmdb.org/t/p/w780/628Dep6AxEtDxjHGz9vKjL6L37a.jpg' },
-  { id: 12, name: 'Adventure', icon: '🤠', count: '9,800+ Movies', bg: 'https://image.tmdb.org/t/p/w780/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg' },
-  { id: 16, name: 'Animation', icon: '🎨', count: '5,200+ Movies', bg: 'https://image.tmdb.org/t/p/w780/14GEidL347zL296614798.jpg' },
-  { id: 35, name: 'Comedy', icon: '😂', count: '18,500+ Movies', bg: 'https://image.tmdb.org/t/p/w780/39L1Uky92209M92aN8E04X74937.jpg' },
-  { id: 80, name: 'Crime', icon: '🕵️‍♂️', count: '8,100+ Movies', bg: 'https://image.tmdb.org/t/p/w780/rSPw7tgCH9c6NqICZefy12pY1XG.jpg' },
-  { id: 99, name: 'Documentary', icon: '📹', count: '14,000+ Titles', bg: 'https://image.tmdb.org/t/p/w780/87823y6741y768.jpg' },
-  { id: 18, name: 'Drama', icon: '🎭', count: '24,000+ Movies', bg: 'https://image.tmdb.org/t/p/w780/hZkgoQY85WERR9yUefJAwIyAFLE.jpg' },
-  { id: 14, name: 'Fantasy', icon: '🧙‍♂️', count: '6,400+ Movies', bg: 'https://image.tmdb.org/t/p/w780/7AB2c99jO7v6J1e3bL783k3.jpg' },
-  { id: 27, name: 'Horror', icon: '👻', count: '7,900+ Movies', bg: 'https://image.tmdb.org/t/p/w780/5gPp62TbdW1jM248W1j2aF75653.jpg' },
-  { id: 9648, name: 'Mystery', icon: '🔍', count: '4,800+ Movies', bg: 'https://image.tmdb.org/t/p/w780/9l1E73g6Z02aJjG0937a091L34.jpg' },
-  { id: 10749, name: 'Romance', icon: '💖', count: '11,200+ Movies', bg: 'https://image.tmdb.org/t/p/w780/97Z9d1W97321a97.jpg' },
-  { id: 878, name: 'Science Fiction', icon: '🚀', count: '8,600+ Movies', bg: 'https://image.tmdb.org/t/p/w780/8tABVawMDeuE1xJ6z321g9.jpg' },
-  { id: 53, name: 'Thriller', icon: '🔪', count: '15,300+ Movies', bg: 'https://image.tmdb.org/t/p/w780/2u7zbn8YUdG6pdV9P22687.jpg' },
-  { id: 10752, name: 'War', icon: '🪖', bg: 'https://image.tmdb.org/t/p/w780/3R1o0918731y6.jpg', count: '3,100+ Movies' },
-  { id: 36, name: 'Biography', icon: '📚', count: '4,200+ Movies', bg: 'https://image.tmdb.org/t/p/w780/z978y21873.jpg' },
-  { id: 10770, name: 'Sports', icon: '⚽', count: '2,900+ Movies', bg: 'https://image.tmdb.org/t/p/w780/9871239812.jpg' },
+  { id: 28, name: 'Action', icon: '💥', color: '#aa3a49' },
+  { id: 12, name: 'Adventure', icon: '🤠', color: '#98633c' },
+  { id: 16, name: 'Animation', icon: '🎨', color: '#9156a5' },
+  { id: 35, name: 'Comedy', icon: '😂', color: '#a98536' },
+  { id: 80, name: 'Crime', icon: '🕵️‍♂️', color: '#53657e' },
+  { id: 99, name: 'Documentary', icon: '📹', color: '#447c78' },
+  { id: 18, name: 'Drama', icon: '🎭', color: '#85505d' },
+  { id: 14, name: 'Fantasy', icon: '🧙‍♂️', color: '#6559a5' },
+  { id: 27, name: 'Horror', icon: '👻', color: '#53634e' },
+  { id: 9648, name: 'Mystery', icon: '🔍', color: '#4f6387' },
+  { id: 10749, name: 'Romance', icon: '💖', color: '#a24d72' },
+  { id: 878, name: 'Science Fiction', icon: '🚀', color: '#397b91' },
+  { id: 53, name: 'Thriller', icon: '🔪', color: '#805342' },
+  { id: 10752, name: 'War', icon: '🪖', color: '#65704b' },
+  { id: 36, name: 'Biography', icon: '📚', color: '#76644d' },
+  { id: 10770, name: 'Sports', icon: '⚽', color: '#467c57' },
 ];
 
 const Genres = () => {
-  const { movies } = usePublicCatalog();
-  const genreCounts = useMemo(() => movies.reduce((result, movie) => {
-    const names = [
-      ...(movie.genres || []).map((genre) => typeof genre === 'string' ? genre : genre?.name),
-      ...(movie.genre_ids || []).map((id) => ALL_GENRES_DATA.find((genre) => genre.id === id)?.name),
-      ...(typeof movie.genre === 'string' ? movie.genre.split(',') : []),
-    ].map((name) => String(name || '').trim()).filter(Boolean);
+  const { movies, loading } = usePublicCatalog();
+  const genreCatalog = useMemo(() => {
+    const result = Object.fromEntries(ALL_GENRES_DATA.map((genre) => [genre.id, { count: 0, image: '' }]));
 
-    names.forEach((name) => {
-      const match = ALL_GENRES_DATA.find((genre) => genre.name.toLowerCase() === name.toLowerCase());
-      if (match) result[match.id] = (result[match.id] || 0) + 1;
+    movies.forEach((movie) => {
+      const genreIds = new Set((movie.genre_ids || []).map(Number));
+      const genreNames = [
+        ...(movie.genres || []).map((genre) => typeof genre === 'string' ? genre : genre?.name),
+        ...(typeof movie.genre === 'string' ? movie.genre.split(',') : []),
+      ];
+
+      genreNames.forEach((name) => {
+        const match = ALL_GENRES_DATA.find((genre) => genre.name.toLowerCase() === String(name || '').trim().toLowerCase());
+        if (match) genreIds.add(match.id);
+      });
+
+      genreIds.forEach((id) => {
+        if (!result[id]) return;
+        result[id].count += 1;
+
+        const image = movie.backdrop_path || movie.backdrop_url || movie.poster_path || movie.poster_url;
+        if (!result[id].image && image && !image.includes('/movie-assets/backdrops/default-backdrop')) {
+          result[id].image = image;
+        }
+      });
     });
 
     return result;
-  }, {}), [movies]);
+  }, [movies]);
 
   return (
     <div className="page-container genres-page">
-      <div className="page-header">
-        <div className="header-badge-row">
-          <Grid size={28} color="#3B82F6" />
-          <h1>Genres</h1>
+      <header className="genres-hero">
+        <div className="genres-hero-copy">
+          <span className="genres-eyebrow"><Sparkles size={14} /> FIND YOUR NEXT FAVORITE</span>
+          <h1>Every mood has<br />a movie.</h1>
+          <p>From edge-of-your-seat thrills to stories that stay with you. Pick a genre and find your next watch.</p>
         </div>
-        <p>Browse your movie catalog by the stories and styles you love.</p>
-      </div>
+        <div className="genres-hero-aside">
+          <span className="genres-hero-icon"><Clapperboard size={25} /></span>
+          <strong>16</strong>
+          <span>ways to find<br />your next story</span>
+        </div>
+        <span className="genres-hero-orbit" aria-hidden="true" />
+      </header>
 
-      <div className="genres-full-grid">
-        {ALL_GENRES_DATA.map((genre) => (
-          <Link key={genre.id} to={`/genre/${genre.id}`} className="genre-card-large">
-            <div className="genre-card-bg" style={{ backgroundImage: `url(${genre.bg})` }} />
-            <div className="genre-card-overlay" />
-            <div className="genre-card-content">
-              <span className="genre-card-emoji">{genre.icon}</span>
-              <h2>{genre.name}</h2>
-              <div className="genre-card-arrow">
-                <span>Explore</span>
-                <ChevronRight size={16} />
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <section className="genres-library" aria-labelledby="genres-library-title">
+        <div className="genres-library-heading">
+          <div>
+            <span className="genres-section-kicker">EXPLORE BY MOOD</span>
+            <h2 id="genres-library-title">Browse all genres</h2>
+          </div>
+          <span className="genres-library-count"><Film size={15} /> {ALL_GENRES_DATA.length} genres</span>
+        </div>
+
+        <div className="genres-full-grid">
+          {ALL_GENRES_DATA.map((genre, index) => {
+            const catalogEntry = genreCatalog[genre.id];
+            return (
+              <Link
+                key={genre.id}
+                to={`/genre/${genre.id}`}
+                className="genre-card-large"
+                style={{ '--genre-color': genre.color, '--genre-index': index, backgroundImage: catalogEntry.image ? `url("${catalogEntry.image}")` : 'none' }}
+              >
+                <span className="genre-card-art" aria-hidden="true" />
+                <span className="genre-card-number">{String(index + 1).padStart(2, '0')}</span>
+                <span className="genre-card-content">
+                  <span className="genre-card-emoji" aria-hidden="true">{genre.icon}</span>
+                  <span className="genre-card-copy">
+                    <strong>{genre.name}</strong>
+                    <small>{loading ? 'Loading titles' : `${catalogEntry.count} ${catalogEntry.count === 1 ? 'title' : 'titles'}`}</small>
+                  </span>
+                  <span className="genre-card-arrow" aria-hidden="true"><ArrowUpRight size={18} /></span>
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 };
