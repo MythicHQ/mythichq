@@ -24,13 +24,22 @@ const STUDIO_HERO_VIDEOS = {
     name: 'Marvel Studios',
     src: 'https://res.cloudinary.com/r18wtzzl/video/upload/f_mp4,vc_h264/marvel-studios-background.mp4',
   },
-  'paramount-pictures': { name: 'Paramount Pictures', file: 'paramount-pictures-background.mp4' },
+  'paramount-pictures': {
+    name: 'Paramount Pictures',
+    src: 'https://res.cloudinary.com/r18wtzzl/video/upload/v1791911196/paramount-pictures-background.mp4',
+  },
   'sony-pictures': {
     name: 'Sony Pictures',
     src: 'https://res.cloudinary.com/r18wtzzl/video/upload/f_mp4,vc_h264/v1791910313/sony-pictures-background.mp4',
   },
-  'universal-pictures': { name: 'Universal Pictures', file: 'universal-pictures-background.mp4' },
-  'warner-bros-pictures': { name: 'Warner Bros. Pictures', file: 'warner-bros-pictures-background.mp4' },
+  'universal-pictures': {
+    name: 'Universal Pictures',
+    src: 'https://res.cloudinary.com/r18wtzzl/video/upload/v1791910891/universal-pictures-background.mp4',
+  },
+  'warner-bros-pictures': {
+    name: 'Warner Bros. Pictures',
+    src: 'https://res.cloudinary.com/r18wtzzl/video/upload/v1791911011/warner-bros-pictures-background.mp4',
+  },
 };
 
 const readSessionValue = (key, fallback) => {
