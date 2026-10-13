@@ -24,6 +24,10 @@ const STUDIO_HERO_VIDEOS = {
     name: 'Marvel Studios',
     src: 'https://res.cloudinary.com/r18wtzzl/video/upload/f_mp4,vc_h264/marvel-studios-background.mp4',
   },
+  '20th-century-studios': {
+    name: '20th Century Studios',
+    src: 'https://res.cloudinary.com/dl6zyuhu/video/upload/v1791912539/20th_Century_Fox_UHD_Sample__Intro___HDR_2160p_4k_2160p60_HDR_1.mp4',
+  },
   'paramount-pictures': {
     name: 'Paramount Pictures',
     src: 'https://res.cloudinary.com/r18wtzzl/video/upload/v1791911196/paramount-pictures-background.mp4',
