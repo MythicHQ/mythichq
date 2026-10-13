@@ -17,11 +17,18 @@ import { fetchPublicStudioContent, getStudioTitlesCacheKey } from '../services/m
 const STUDIOS_SEARCH_KEY = 'mythichq:studios:search';
 const STUDIO_SORTS_KEY = 'mythichq:studios:sorts';
 const EMPTY_TITLES = [];
+
 const STUDIO_HERO_VIDEOS = {
   'dc-universe': { name: 'DC Universe', file: 'dc-background.mp4' },
-  'marvel-studios': { name: 'Marvel Studios', file: 'marvel-studios-background.mp4' },
+  'marvel-studios': {
+    name: 'Marvel Studios',
+    src: 'https://res.cloudinary.com/r18wtzzl/video/upload/f_mp4,vc_h264/marvel-studios-background.mp4',
+  },
   'paramount-pictures': { name: 'Paramount Pictures', file: 'paramount-pictures-background.mp4' },
-  'sony-pictures': { name: 'Sony Pictures', file: 'sony-pictures-background.mp4' },
+  'sony-pictures': {
+    name: 'Sony Pictures',
+    src: 'https://res.cloudinary.com/r18wtzzl/video/upload/f_mp4,vc_h264/v1791910313/sony-pictures-background.mp4',
+  },
   'universal-pictures': { name: 'Universal Pictures', file: 'universal-pictures-background.mp4' },
   'warner-bros-pictures': { name: 'Warner Bros. Pictures', file: 'warner-bros-pictures-background.mp4' },
 };
@@ -53,11 +60,15 @@ const StudioHeroBackgroundVideo = ({ imageUrl, shouldPlay, video, isMuted, onVid
 
   useEffect(() => {
     if (!shouldPlay || !videoRef.current) return;
-
     videoRef.current.play().catch((error) => {
       console.error(`Unable to start the ${video.name} hero background video:`, error);
     });
-  }, [shouldPlay, video.name]);
+  }, [shouldPlay, video.name, video.src]);
+
+  const handleVideoPlaying = () => {
+    setVideoPlaying(true);
+    onVideoPlaying();
+  };
 
   return (
     <>
@@ -70,10 +81,7 @@ const StudioHeroBackgroundVideo = ({ imageUrl, shouldPlay, video, isMuted, onVid
           muted={isMuted}
           playsInline
           preload="auto"
-          onPlaying={() => {
-            setVideoPlaying(true);
-            onVideoPlaying();
-          }}
+          onPlaying={handleVideoPlaying}
           onEnded={() => {
             setVideoPlaying(false);
             onVideoEnded();
@@ -81,7 +89,10 @@ const StudioHeroBackgroundVideo = ({ imageUrl, shouldPlay, video, isMuted, onVid
           onError={() => console.error(`Unable to play the ${video.name} hero background video.`)}
           aria-hidden="true"
         >
-          <source src={`${import.meta.env.BASE_URL}movie-assets/backdrop-video/${video.file}`} type="video/mp4" />
+          <source
+            src={video.src || `${import.meta.env.BASE_URL}movie-assets/backdrop-video/${video.file}`}
+            type="video/mp4"
+          />
         </video>
       )}
     </>
