@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, Outlet, useLocation, useNavigationType } from 'react-router-dom';
 import { useAuth } from './pages/Admin/AuthContext';
 import { WatchlistProvider } from './pages/Admin/WatchlistContext';
@@ -34,6 +34,7 @@ import AdminOttPlatformsPage from './pages/Admin/AdminOttPlatforms';
 import AdminCastPage from './pages/Admin/AdminCast';
 import AdminCastDetailsPage from './pages/Admin/AdminCastDetails';
 import AdminStudiosPage from './pages/Admin/AdminStudios';
+import AdminStudioPhasesPage from './pages/Admin/AdminStudioPhases';
 import { TrendingRankProvider } from './contexts/TrendingRankContext';
 
 import Home from './pages/Home';
@@ -62,12 +63,12 @@ import ProfilesPage from './pages/Profiles';
 import ProfilePage from './pages/Profile';
 import SettingsPage from './pages/Settings';
 import { StudiosPage, StudioDetailPage } from './pages/Studios';
+import StudioPhasesPage from './pages/StudioPhases';
 import HelpPage from './pages/Help';
 import ContactPage from './pages/Contact';
 import AboutPage from './pages/About';
 import PrivacyPolicyPage from './pages/PrivacyPolicy';
 import TermsOfServicePage from './pages/TermsOfService';
-import { fetchPublicMovies } from './services/movieCatalog';
 import { applyAppearanceSettings, loadCachedAppearance } from './services/userSettings';
 
 import './styles/index.css';
@@ -144,7 +145,6 @@ function AppContent() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [trailerAutoplay, setTrailerAutoplay] = useState(() => loadCachedAppearance().trailerAutoplay);
   const [isOffline, setIsOffline] = useState(() => !navigator.onLine);
-  const prefetchStarted = useRef(false);
 
   useEffect(() => {
     const appearance = loadCachedAppearance();
@@ -169,23 +169,6 @@ function AppContent() {
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('online', handleOnline);
     };
-  }, []);
-
-  useEffect(() => {
-    if (prefetchStarted.current) return undefined;
-    prefetchStarted.current = true;
-
-    const prefetchCatalog = () => {
-      void fetchPublicMovies();
-    };
-
-    if ('requestIdleCallback' in window) {
-      const idleId = window.requestIdleCallback(prefetchCatalog, { timeout: 2500 });
-      return () => window.cancelIdleCallback(idleId);
-    }
-
-    const timeoutId = window.setTimeout(prefetchCatalog, 1200);
-    return () => window.clearTimeout(timeoutId);
   }, []);
 
   const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password', '/complete-profile', '/profiles'].includes(location.pathname)
@@ -247,6 +230,7 @@ function AppContent() {
           <Route path="/tv-show/:identifier" element={<TvShowDetails onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/cast/:castMemberIdentifier" element={<CastMemberProfile />} />
           <Route path="/studios" element={<StudiosPage />} />
+          <Route path="/studios/phases" element={<StudioPhasesPage />} />
           <Route path="/studios/:slug" element={<StudioDetailPage onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -291,6 +275,7 @@ function AppContent() {
             <Route path="browse-categories" element={<AdminBrowseCategoriesPage />} />
             <Route path="languages" element={<AdminLanguagesPage />} />
             <Route path="studios" element={<AdminStudiosPage />} />
+            <Route path="studio-phases" element={<AdminStudioPhasesPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
           </Route>
         </Routes>
