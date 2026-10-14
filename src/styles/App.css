@@ -3021,6 +3021,7 @@
 }
 
 .profile-content-panel {
+  min-width: 0;
   padding: 22px;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 22px;
@@ -3051,6 +3052,7 @@
 
 .profile-mini-card {
   display: flex;
+  min-width: 0;
   align-items: center;
   gap: 12px;
   padding: 8px;
@@ -3062,18 +3064,26 @@
 .profile-mini-card img {
   width: 64px;
   height: 94px;
+  flex: 0 0 64px;
   border-radius: 10px;
   object-fit: cover;
 }
 
 .profile-mini-copy {
   display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: 4px;
 }
 
 .profile-mini-copy strong {
+  overflow: hidden;
   font-size: 0.84rem;
+  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .profile-mini-copy span {
@@ -3085,6 +3095,17 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+}
+
+.profile-movie-grid .movie-card {
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.profile-movie-grid .movie-poster-wrapper {
+  height: auto;
+  aspect-ratio: 2 / 3;
 }
 
 .profile-review-list {
