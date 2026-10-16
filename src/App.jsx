@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Routes, Route, Navigate, Outlet, useLocation, useNavigationType } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, matchPath, useLocation, useNavigationType } from 'react-router-dom';
 import { useAuth } from './pages/Admin/AuthContext';
 import { WatchlistProvider } from './pages/Admin/WatchlistContext';
 import { NotificationProvider } from './pages/Admin/NotificationContext';
@@ -69,12 +69,76 @@ import ContactPage from './pages/Contact';
 import AboutPage from './pages/About';
 import PrivacyPolicyPage from './pages/PrivacyPolicy';
 import TermsOfServicePage from './pages/TermsOfService';
+import NotFound from './pages/NotFound';
 import { applyAppearanceSettings, loadCachedAppearance } from './services/userSettings';
 
 import './styles/index.css';
 import './styles/App.css';
 import './styles/profiles.css';
 import './styles/movieDetails.css';
+import './styles/notFound.css';
+
+const APP_ROUTE_PATTERNS = [
+  '/',
+  '/movie',
+  '/movies',
+  '/tv-shows',
+  '/discovery',
+  '/trending',
+  '/top-rated',
+  '/new-releases',
+  '/genres',
+  '/languages',
+  '/genre/:id',
+  '/upcoming',
+  '/search',
+  '/movie/:movieIdentifier',
+  '/tv-show/:identifier',
+  '/cast/:castMemberIdentifier',
+  '/studios',
+  '/studios/phases',
+  '/studios/:slug',
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/complete-profile',
+  '/profiles',
+  '/watchlist',
+  '/profile',
+  '/settings',
+  '/about',
+  '/entertainment',
+  '/help',
+  '/contact',
+  '/privacy-policy',
+  '/terms-of-service',
+  '/admin/login',
+  '/admin',
+  '/admin/dashboard',
+  '/admin/notifications',
+  '/admin/movies',
+  '/admin/movie-problems',
+  '/admin/cast',
+  '/admin/cast/:id',
+  '/admin/ott-platforms',
+  '/admin/movies/add',
+  '/admin/movies/edit/:id',
+  '/admin/tv-shows/add',
+  '/admin/tv-shows/edit/:id',
+  '/admin/hero',
+  '/admin/hero-tv-shows',
+  '/admin/curated/:section',
+  '/admin/reviews',
+  '/admin/contact-messages',
+  '/admin/users',
+  '/admin/profile-icons',
+  '/admin/browse-categories',
+  '/admin/languages',
+  '/admin/studios',
+  '/admin/studio-phases',
+  '/admin/settings',
+];
 
 function RouteScrollRestoration() {
   const location = useLocation();
@@ -174,6 +238,8 @@ function AppContent() {
   const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password', '/complete-profile', '/profiles'].includes(location.pathname)
     || (!user && ['/', '/movie'].includes(location.pathname));
   const isPublicInfoPage = ['/help', '/contact', '/privacy-policy', '/terms-of-service'].includes(location.pathname);
+  const isKnownRoute = APP_ROUTE_PATTERNS.some((path) => matchPath({ path, end: true }, location.pathname));
+  const isNotFoundPage = !isKnownRoute;
 
   const handlePlayTrailer = useCallback((movie, videoKey = null) => {
     setTrailerState({ isOpen: true, movie, videoKey });
@@ -195,20 +261,20 @@ function AppContent() {
     return <div className="page-container auth-page-shell"><LoadingIndicator label="Loading your profile..." /></div>;
   }
 
-  if (user && profile?.profile_completed === false && location.pathname !== '/complete-profile' && !isPublicInfoPage) {
+  if (user && profile?.profile_completed === false && location.pathname !== '/complete-profile' && !isPublicInfoPage && isKnownRoute) {
     return <Navigate to="/complete-profile" replace />;
   }
 
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isStandalonePublicPage = isPublicInfoPage && !user;
   const isProfileFlowExempt = PROFILE_FLOW_EXEMPT_PATHS.includes(location.pathname);
-  if (user && !selectedViewerProfile && !isAdminRoute && !isProfileFlowExempt) {
+  if (user && isKnownRoute && !selectedViewerProfile && !isAdminRoute && !isProfileFlowExempt) {
     return <Navigate to="/profiles" replace state={{ from: location }} />;
   }
 
   return (
-    <div className="app-layout">
-      {!isAuthPage && !isStandalonePublicPage && <Navbar onPlayTrailer={handlePlayTrailer} />}
+    <div className={`app-layout${isNotFoundPage ? ' not-found-layout' : ''}`}>
+      {!isNotFoundPage && !isAuthPage && !isStandalonePublicPage && <Navbar onPlayTrailer={handlePlayTrailer} />}
       <RouteScrollRestoration />
 
       <main className="app-main">
@@ -278,10 +344,11 @@ function AppContent() {
             <Route path="studio-phases" element={<AdminStudioPhasesPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 
-      {!isAuthPage && !isStandalonePublicPage && <Footer />}
+      {!isNotFoundPage && !isAuthPage && !isStandalonePublicPage && <Footer />}
 
       {trailerState.isOpen && (
         <TrailerModal
