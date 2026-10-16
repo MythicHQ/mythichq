@@ -162,6 +162,59 @@ export const saveMovieCastMembers = async (movieId, members) => {
   invalidateCache(`movie-cast-members:${movieId}`);
 };
 
+export const loadCastMemberCharacterHistory = async (castMemberId) => {
+  const client = requireClient();
+  const [movieCreditsResult, tvCreditsResult] = await Promise.all([
+    client.from('movie_cast')
+      .select('character_name, movie_id')
+      .eq('cast_member_id', castMemberId),
+    client.from('tv_show_cast')
+      .select('character_name, tv_show_id')
+      .eq('cast_member_id', castMemberId),
+  ]);
+  if (movieCreditsResult.error) throw movieCreditsResult.error;
+  if (tvCreditsResult.error) throw tvCreditsResult.error;
+
+  const movieCredits = movieCreditsResult.data || [];
+  const tvCredits = tvCreditsResult.data || [];
+  const [moviesResult, tvShowsResult] = await Promise.all([
+    movieCredits.length
+      ? client.from('movies').select('id, title').in('id', [...new Set(movieCredits.map((credit) => credit.movie_id))])
+      : Promise.resolve({ data: [], error: null }),
+    tvCredits.length
+      ? client.from('tv_shows').select('id, title').in('id', [...new Set(tvCredits.map((credit) => credit.tv_show_id))])
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+  if (moviesResult.error) throw moviesResult.error;
+  if (tvShowsResult.error) throw tvShowsResult.error;
+
+  const titlesByMovieId = new Map((moviesResult.data || []).map((movie) => [String(movie.id), movie.title]));
+  const titlesByTvShowId = new Map((tvShowsResult.data || []).map((show) => [String(show.id), show.title]));
+  const suggestionsByName = new Map();
+  [
+    ...movieCredits.map((credit) => ({
+      characterName: String(credit.character_name || '').trim(),
+      title: titlesByMovieId.get(String(credit.movie_id)),
+      mediaType: 'Movie',
+    })),
+    ...tvCredits.map((credit) => ({
+      characterName: String(credit.character_name || '').trim(),
+      title: titlesByTvShowId.get(String(credit.tv_show_id)),
+      mediaType: 'TV show',
+    })),
+  ].forEach(({ characterName, title, mediaType }) => {
+    if (!characterName) return;
+    const key = characterName.toLocaleLowerCase();
+    const suggestion = suggestionsByName.get(key) || { characterName, titles: [] };
+    if (title && !suggestion.titles.some((entry) => entry.title === title && entry.mediaType === mediaType)) {
+      suggestion.titles.push({ title, mediaType });
+    }
+    suggestionsByName.set(key, suggestion);
+  });
+
+  return [...suggestionsByName.values()];
+};
+
 export const loadCastMemberMovies = async (castMemberId, { publishedOnly = false } = {}) => {
   const client = requireClient();
   const [movieLinksResult, tvLinksResult] = await Promise.all([
