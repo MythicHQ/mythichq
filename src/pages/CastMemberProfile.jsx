@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Film, UserRound } from 'lucide-react';
 import LoadingIndicator from '../components/LoadingIndicator';
 import { getCastMember, loadCastMemberMovies } from '../services/castMembers';
+import { getMovieDetailRoute } from '../services/movieCatalog';
 import { getPosterDisplayUrl } from '../services/tmdb';
 import { formatDate } from '../utils/helpers';
 
@@ -80,7 +81,11 @@ const CastMemberProfile = () => {
             {movies.map(({ movie_record: movie, id }) => {
               const posterUrl = getPosterDisplayUrl(movie.poster_url, 'w500');
               return (
-                <Link className="cast-public-movie-card" to={movie.content_type === 'tv_show' ? `/tv-show/${movie.id}` : `/movie/${movie.id}`} key={id}>
+                <Link
+                  className="cast-public-movie-card"
+                  to={getMovieDetailRoute({ ...movie, record_type: movie.content_type })}
+                  key={id}
+                >
                   <div className="cast-public-movie-poster">
                     {posterUrl
                       ? <CropImage src={posterUrl} alt={`${movie.title} poster`} loading="lazy" />
