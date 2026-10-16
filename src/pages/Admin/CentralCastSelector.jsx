@@ -2,9 +2,66 @@ import React, { useEffect, useState } from 'react';
 import CropImage from '../../components/CropImage';
 import { Link } from 'react-router-dom';
 import { ArrowDown, ArrowUp, LoaderCircle, Plus, Search, Trash2 } from 'lucide-react';
-import { searchCastMembers } from '../../services/castMembers';
+import { loadCastMemberCharacterHistory, searchCastMembers } from '../../services/castMembers';
 import CastMemberDialog from './CastMemberDialog';
 import SearchClearButton from '../../components/SearchClearButton';
+
+const CharacterNameField = ({ member, onChange }) => {
+  const [history, setHistory] = useState({ memberId: null, loading: false, error: '', suggestions: [] });
+
+  useEffect(() => {
+    let active = true;
+    loadCastMemberCharacterHistory(member.id).then((suggestions) => {
+      if (active) setHistory({ memberId: member.id, loading: false, error: '', suggestions });
+    }).catch((error) => {
+      console.error('Failed to load previous character names:', error);
+      if (active) setHistory({
+        memberId: member.id,
+        loading: false,
+        error: error.message || 'Unable to load previous character names.',
+        suggestions: [],
+      });
+    });
+    return () => { active = false; };
+  }, [member.id]);
+
+  const currentHistory = history.memberId === member.id
+    ? history
+    : { loading: true, error: '', suggestions: [] };
+
+  return (
+    <div className="central-cast-character-field">
+      <label><span>Character</span>
+        <input
+          value={member.character_name || ''}
+          onChange={(event) => onChange(member.id, event.target.value)}
+          placeholder="Character name"
+          autoComplete="off"
+          aria-autocomplete="list"
+          aria-expanded={Boolean(currentHistory?.suggestions.length)}
+        />
+      </label>
+      {currentHistory?.loading && <small className="central-cast-history-status"><LoaderCircle size={13} className="viewer-spinner" /> Loading character history…</small>}
+      {currentHistory?.error && <small className="central-cast-history-error" role="alert">{currentHistory.error}</small>}
+      {currentHistory?.suggestions.length > 0 && (
+        <div className="central-cast-history" role="listbox" aria-label="Previously used character names">
+          <strong>Previously used character names</strong>
+          {currentHistory.suggestions.map((suggestion) => (
+            <button
+              type="button"
+              role="option"
+              key={suggestion.characterName.toLocaleLowerCase()}
+              onClick={() => onChange(member.id, suggestion.characterName)}
+            >
+              <span>{suggestion.characterName}</span>
+              <small>{suggestion.titles.map(({ title, mediaType }) => `${title} (${mediaType})`).join(', ')}</small>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const reorder = (items, from, to) => {
   if (to < 0 || to >= items.length) return items;
@@ -97,7 +154,7 @@ const CentralCastSelector = ({ cast, onChange }) => {
           onDragEnd={() => setDragIndex(-1)}
         >
           {member.profile_image_url || member.image_url ? <CropImage src={member.profile_image_url || member.image_url} alt="" /> : <span className="central-cast-result-fallback">{member.full_name.slice(0, 1)}</span>}
-          <div className="central-cast-card-info"><Link to={`/admin/cast/${member.id}`}><strong>{member.full_name}</strong></Link><small>{member.profession || 'Actor'}</small><label><span>Character</span><input value={member.character_name || ''} onChange={(event) => updateCharacter(member.id, event.target.value)} placeholder="Character name" /></label></div>
+          <div className="central-cast-card-info"><Link to={`/admin/cast/${member.id}`}><strong>{member.full_name}</strong></Link><small>{member.profession || 'Actor'}</small><CharacterNameField member={member} onChange={updateCharacter} /></div>
           <div className="central-cast-card-actions">
             <button type="button" title="Move up" aria-label={`Move ${member.full_name} up`} disabled={index === 0} onClick={() => onChange(reorder(cast, index, index - 1))}><ArrowUp size={14} /></button>
             <button type="button" title="Move down" aria-label={`Move ${member.full_name} down`} disabled={index === cast.length - 1} onClick={() => onChange(reorder(cast, index, index + 1))}><ArrowDown size={14} /></button>
