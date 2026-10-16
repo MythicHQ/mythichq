@@ -553,6 +553,16 @@ body.admin-mode .app-main { min-height: 100vh; }
 .central-cast-card-info > small { color: var(--admin-muted); font-size: .61rem; }
 .central-cast-card-info label { display: grid; gap: 3px; margin-top: 5px; color: var(--admin-muted); font-size: .58rem; }
 .central-cast-card-info input { box-sizing: border-box; width: 100%; min-height: 30px; padding: 0 7px; border: 1px solid var(--admin-line); border-radius: 5px; color: #fff; background: #11141b; font: inherit; font-size: .63rem; }
+.central-cast-character-field { position: relative; min-width: 0; }
+.central-cast-history-status, .central-cast-history-error { display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; font-size: .58rem; }
+.central-cast-history-status { color: var(--admin-muted); }
+.central-cast-history-error { color: #ff9ba2; }
+.central-cast-history { position: absolute; z-index: 16; top: calc(100% + 4px); right: 0; left: 0; display: grid; max-height: 210px; overflow: auto; padding: 6px; border: 1px solid var(--admin-line); border-radius: 7px; background: #191c25; box-shadow: 0 12px 28px rgba(0,0,0,.42); }
+.central-cast-history > strong { padding: 5px 6px; color: var(--admin-muted); font-size: .58rem; font-weight: 600; }
+.central-cast-history button { display: grid; gap: 3px; padding: 6px; border: 0; border-radius: 5px; color: #fff; background: transparent; text-align: left; cursor: pointer; }
+.central-cast-history button:hover { background: rgba(255,255,255,.07); }
+.central-cast-history button > span { font-size: .65rem; }
+.central-cast-history button > small { color: var(--admin-muted); font-size: .55rem; line-height: 1.35; }
 .central-cast-card-actions { display: grid; gap: 2px; }
 .central-cast-card-actions button { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid transparent; border-radius: 4px; color: var(--admin-muted); background: transparent; cursor: pointer; }
 .central-cast-card-actions button:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.08); }
