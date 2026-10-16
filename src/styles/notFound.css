@@ -4,6 +4,12 @@
   min-height: 100svh;
 }
 
+.not-found-layout .app-main,
+.not-found-page,
+.not-found-content {
+  min-width: 0;
+}
+
 #root:has(.not-found-layout) {
   width: 100%;
   max-width: none;
@@ -215,6 +221,16 @@
 @media (max-width: 600px) {
   .not-found-page {
     padding: 40px 22px;
+  }
+
+  .not-found-content h1 {
+    font-size: clamp(1.55rem, 7vw, 2.2rem);
+    overflow-wrap: anywhere;
+  }
+
+  .not-found-message {
+    font-size: 0.92rem;
+    overflow-wrap: anywhere;
   }
 
   .not-found-code {
