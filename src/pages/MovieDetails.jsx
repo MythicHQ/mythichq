@@ -49,6 +49,7 @@ import { supabase } from '../lib/supabase';
 import { fetchMovieCredits } from '../services/movieCredits';
 import { fetchMovieCastMembers } from '../services/castMembers';
 import { fetchContentStudios } from '../services/studios';
+import { rankSimilarTitles } from '../utils/similarTitles';
 import {
   loadMovieEngagement,
   recordMovieView,
@@ -419,62 +420,7 @@ const MovieDetails = ({ onPlayTrailer }) => {
     setRelatedBatchCount(1);
     fetchPublicMovies().then((catalog) => {
       if (!active) return;
-      const getNames = (value) => (Array.isArray(value) ? value : String(value || '').split(','))
-        .map((item) => typeof item === 'string' ? item : item?.name || '')
-        .map((item) => String(item).trim().toLowerCase())
-        .filter(Boolean);
-      const movieGenres = new Set([
-        ...getNames(movie.genres),
-        ...getNames(movie.genre),
-      ]);
-      const movieGenreIds = new Set((movie.genre_ids || []).map(String));
-      const movieLanguages = new Set([
-        ...getNames(movie.languages),
-        ...(movie.spoken_languages || []).map((language) => language?.english_name || language?.name),
-        ...getNames(movie.language),
-      ].map((language) => String(language || '').trim().toLowerCase()).filter(Boolean));
-      const movieRating = Number(movie.vote_average || 0);
-
-      const candidatesById = new Map();
-      catalog
-        .filter((candidate) => candidate
-          && candidate.is_published === true
-          && (candidate.record_type || candidate.content_type || candidate.media_type || 'movie') === 'movie')
-        .forEach((candidate) => {
-          const candidateId = String(candidate.id || '');
-          if (candidateId && candidateId !== String(movie.id) && !candidatesById.has(candidateId)) {
-            candidatesById.set(candidateId, candidate);
-          }
-        });
-      const candidates = [...candidatesById.values()];
-      const ranked = candidates
-        .map((candidate) => {
-          const candidateGenres = getNames(candidate.genres).concat(getNames(candidate.genre));
-          const candidateGenreIds = (candidate.genre_ids || []).map(String);
-          const candidateLanguages = [
-            ...getNames(candidate.languages),
-            ...getNames(candidate.language),
-          ].map((language) => String(language || '').trim().toLowerCase()).filter(Boolean);
-          const sharedGenreCount = candidateGenres.filter((genre) => movieGenres.has(genre)).length;
-          const sharedGenreIdCount = candidateGenreIds.filter((genreId) => movieGenreIds.has(genreId)).length;
-          const sharedLanguage = candidateLanguages.some((language) => movieLanguages.has(language));
-          const candidateRating = Number(candidate.vote_average || 0);
-          const ratingDifference = movieRating > 0 && candidateRating > 0
-            ? Math.abs(movieRating - candidateRating)
-            : Number.POSITIVE_INFINITY;
-          return {
-            candidate,
-            score: sharedGenreCount * 3 + sharedGenreIdCount * 3 + (sharedLanguage ? 2 : 0)
-              + (ratingDifference <= 1.5 ? 2 - ratingDifference : 0),
-          };
-        })
-        .sort((first, second) => second.score - first.score
-          || Number(second.candidate.vote_average || 0) - Number(first.candidate.vote_average || 0)
-          || new Date(second.candidate.release_date || 0) - new Date(first.candidate.release_date || 0));
-      const matches = ranked.filter((item) => item.score > 0);
-      const recommendations = matches.map(({ candidate }) => candidate);
-
-      setRelatedMovies(recommendations);
+      setRelatedMovies(rankSimilarTitles(movie, catalog));
     }).catch((catalogError) => {
       console.error('Failed to load related movies:', catalogError);
       if (active) setRelatedMovies([]);
@@ -893,7 +839,7 @@ const MovieDetails = ({ onPlayTrailer }) => {
             <div className="section-header">
               <h2>You May Also Like</h2>
             </div>
-            <p className="movie-related-subtitle">Similar movies you might enjoy based on genre, style and more.</p>
+            <p className="movie-related-subtitle">Discover related titles through shared names, worlds, genres, cast, and more.</p>
           </div>
           {relatedMovies.length > 0 ? (
             <>
@@ -939,7 +885,7 @@ const MovieDetails = ({ onPlayTrailer }) => {
               )}
             </>
           ) : (
-            <div className="details-empty-state">No similar movies available</div>
+            <div className="details-empty-state">No similar titles available</div>
           )}
         </section>
         <section className="movie-detail-section" aria-labelledby="movie-information-heading">
