@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowUpRight, Building2, Layers3, Search, SlidersHorizontal, Sparkles, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Building2, ChevronDown, Layers3, Search, SlidersHorizontal, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import MovieCard from '../components/MovieCard';
 import MovieRail from '../components/MovieRail';
@@ -13,6 +13,12 @@ import {
 } from '../services/studios';
 import { getCachedRequest, subscribeToCachedRequest } from '../services/requestCache';
 import { fetchPublicStudioContent, getStudioTitlesCacheKey } from '../services/movieCatalog';
+import {
+  getMarvelFranchiseBackdropMovie,
+  getMarvelFranchise,
+  getMarvelFranchiseMovies,
+  getMarvelFranchiseSections,
+} from '../utils/studioCollections';
 
 const STUDIOS_SEARCH_KEY = 'mythichq:studios:search';
 const STUDIO_SORTS_KEY = 'mythichq:studios:sorts';
@@ -111,6 +117,48 @@ const StudioHeroBackgroundVideo = ({ imageUrl, shouldPlay, video, isMuted, onVid
     </>
   );
 };
+
+const StudioMovieCollection = ({ collection, onPlayTrailer }) => {
+  const [visibleCount, setVisibleCount] = useState(6);
+  const collectionId = `studio-subcollection-${normalizeCollectionId(collection.key)}`;
+  const visibleMovies = collection.movies.slice(0, visibleCount);
+
+  return (
+    <section className="studio-subcollection" id={collectionId} aria-label={collection.name}>
+      <div className="studio-collection-heading">
+        <div>
+          <Link className="studio-franchise-link" to={`/studios/marvel-studios/franchise/${collection.slug}`}>
+            <h2>{collection.name}</h2>
+            <ArrowUpRight size={15} aria-hidden="true" />
+          </Link>
+          <p>{collection.movies.length} published movies</p>
+        </div>
+      </div>
+      <MovieRail hideScrollbar>
+        {visibleMovies.map((movie) => (
+          <MovieCard
+            movie={movie}
+            key={`${movie.record_type || 'movie'}-${movie.id}-${movie.release_date || ''}`}
+            onPlayTrailer={onPlayTrailer}
+          />
+        ))}
+      </MovieRail>
+      {visibleCount < collection.movies.length && (
+        <button
+          className="studio-collection-more"
+          type="button"
+          aria-controls={collectionId}
+          aria-expanded={visibleCount > 6}
+          onClick={() => setVisibleCount((count) => Math.min(count + 6, collection.movies.length))}
+        >
+          Show More <ChevronDown size={16} aria-hidden="true" />
+        </button>
+      )}
+    </section>
+  );
+};
+
+const normalizeCollectionId = (value) => String(value || '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
 
 const useStudios = () => {
   const cachedStudios = getCachedStudios();
@@ -267,6 +315,12 @@ export const StudioDetailPage = ({ onPlayTrailer }) => {
     if (sort === 'title') return String(first.title).localeCompare(String(second.title));
     return new Date(second.release_date || second.first_air_date || 0) - new Date(first.release_date || first.first_air_date || 0);
   }), [content, sort]);
+  const isMarvelStudio = studio?.slug === 'marvel-studios'
+    || normalizeCollectionId(studio?.name).toLowerCase() === 'marvel-studios';
+  const franchiseSections = useMemo(
+    () => isMarvelStudio ? getMarvelFranchiseSections(sorted) : [],
+    [isMarvelStudio, sorted],
+  );
 
   if (loading) return <div className="page-container studios-loading">Loading studio…</div>;
   if (error) return <div className="page-container studios-empty" role="alert"><h1>Unable to load studio</h1><p>{error}</p><Link to="/studios">Browse studios</Link></div>;
@@ -328,6 +382,98 @@ export const StudioDetailPage = ({ onPlayTrailer }) => {
           : assignmentError ? <div className="studios-empty" role="alert"><h2>Unable to load studio titles</h2><p>{assignmentError}</p></div>
             : sorted.length ? <MovieRail hideScrollbar>{sorted.map((item) => <MovieCard movie={item} key={`${item.record_type || 'movie'}-${item.id}`} onPlayTrailer={onPlayTrailer} />)}</MovieRail>
               : <div className="studios-empty"><SlidersHorizontal size={32} /><h2>No published titles yet</h2><p>Assign movies or TV shows to {studio.name} in the admin forms.</p></div>}
+        {isMarvelStudio && !assignmentsLoading && !assignmentError && franchiseSections.map((collection) => (
+          <StudioMovieCollection
+            key={collection.slug}
+            collection={collection}
+            onPlayTrailer={onPlayTrailer}
+          />
+        ))}
+      </section>
+    </div>
+  );
+};
+
+export const MarvelFranchisePage = ({ onPlayTrailer }) => {
+  const { slug, franchiseSlug } = useParams();
+  const { studios, loading: studiosLoading, error: studiosError } = useStudios();
+  const studio = studios.find((item) => item.slug === slug && item.slug === 'marvel-studios');
+  const studioId = studio?.id;
+  const franchise = getMarvelFranchise(franchiseSlug);
+  const [sort, setSort] = useState('latest');
+  const [titleState, setTitleState] = useState({ studioId: null, titles: EMPTY_TITLES, loading: true, error: '' });
+
+  useEffect(() => {
+    if (!studioId) return undefined;
+    let active = true;
+    const cacheKey = getStudioTitlesCacheKey(studioId);
+    const refresh = () => fetchPublicStudioContent(studioId)
+      .then((titles) => {
+        if (active) setTitleState({ studioId, titles, loading: false, error: '' });
+      })
+      .catch((loadError) => {
+        console.error('Unable to load Marvel franchise titles:', loadError);
+        if (active) setTitleState((current) => ({
+          studioId,
+          titles: current.studioId === studioId ? current.titles : EMPTY_TITLES,
+          loading: false,
+          error: loadError.message || 'Marvel franchise titles could not be loaded.',
+        }));
+      });
+    const unsubscribeCache = subscribeToCachedRequest(cacheKey, (titles) => {
+      if (titles) {
+        if (active) setTitleState({ studioId, titles, loading: false, error: '' });
+      } else {
+        void refresh();
+      }
+    });
+    const unsubscribe = subscribeToStudios(refresh);
+    void refresh();
+    return () => { active = false; unsubscribe(); unsubscribeCache(); };
+  }, [studioId]);
+
+  const titles = titleState.studioId === studioId ? titleState.titles : EMPTY_TITLES;
+  const franchiseMovies = useMemo(
+    () => franchise ? getMarvelFranchiseMovies(titles, franchise.slug) : [],
+    [franchise, titles],
+  );
+  const sortedMovies = useMemo(() => [...franchiseMovies].sort((first, second) => {
+    if (sort === 'rating') return Number(second.vote_average || 0) - Number(first.vote_average || 0);
+    if (sort === 'title') return String(first.title).localeCompare(String(second.title));
+    return new Date(second.release_date || 0) - new Date(first.release_date || 0);
+  }), [franchiseMovies, sort]);
+  const preferredBackdropId = franchise ? studio?.franchise_background_movie_ids?.[franchise.slug] || '' : '';
+  const backdropMovie = getMarvelFranchiseBackdropMovie(titles, franchise?.slug, preferredBackdropId);
+  const heroImage = backdropMovie?.backdrop_path || backdropMovie?.backdrop_url || studio.background_url;
+  const pageLoading = studiosLoading || (Boolean(studioId) && titleState.studioId !== studioId)
+    || (Boolean(studioId) && titleState.loading);
+
+  if (pageLoading) return <div className="page-container studios-loading">Loading Marvel franchise…</div>;
+  if (studiosError) return <div className="page-container studios-empty" role="alert"><h1>Unable to load Marvel franchises</h1><p>{studiosError}</p><Link to="/studios">Browse studios</Link></div>;
+  if (!studio) return <div className="page-container studios-empty"><Building2 size={32} /><h1>Marvel Studios is unavailable</h1><Link to="/studios">Browse studios</Link></div>;
+  if (!franchise) return <div className="page-container studios-empty"><h1>Franchise not found</h1><Link to="/studios/marvel-studios">Marvel Studios</Link></div>;
+
+  return (
+    <div className="page-container studio-detail-page studio-cinematic-page">
+      <Link className="studio-back" to="/studios/marvel-studios"><ArrowLeft size={16} /> Marvel Studios</Link>
+      <header className="studio-detail-hero studio-cinematic-hero studio-franchise-hero">
+        {heroImage && <CropImage className="studio-franchise-background" src={heroImage} alt="" />}
+        <div className="studio-cinematic-caption">
+          <span>MARVEL STUDIOS FRANCHISE</span>
+          <h2>{franchise.name}</h2>
+        </div>
+      </header>
+      <section className="studio-cinematic-content" aria-label={`${franchise.name} movies`}>
+        <div className="studio-collection-heading">
+          <div>
+            <h2>{franchise.name}</h2>
+            <p>{franchiseMovies.length} published {franchiseMovies.length === 1 ? 'movie' : 'movies'}</p>
+          </div>
+          <label><span>Sort</span><select value={sort} onChange={(event) => setSort(event.target.value)}><option value="latest">Latest releases</option><option value="rating">Top rated</option><option value="title">A–Z</option></select></label>
+        </div>
+        {titleState.error ? <div className="studios-empty" role="alert"><h2>Unable to load franchise movies</h2><p>{titleState.error}</p></div>
+          : sortedMovies.length ? <MovieRail hideScrollbar>{sortedMovies.map((movie) => <MovieCard movie={movie} key={`${movie.record_type}-${movie.id}`} onPlayTrailer={onPlayTrailer} />)}</MovieRail>
+            : <div className="studios-empty"><SlidersHorizontal size={32} /><h2>No published movies yet</h2><p>No published Marvel Studios movies are assigned to {franchise.name}.</p></div>}
       </section>
     </div>
   );
