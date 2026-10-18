@@ -20,6 +20,7 @@ import { copyImageCropSettings } from '../../services/imageCrops';
 import SearchClearButton from '../../components/SearchClearButton';
 import StudioSelector from '../../components/StudioSelector';
 import { fetchContentStudioIds, saveContentStudioAssignments } from '../../services/studios';
+import { MARVEL_FRANCHISES } from '../../utils/studioCollections';
 
 const AVAILABLE_GENRES = ['Action', 'Comedy', 'Drama', 'Horror', 'Science Fiction', 'Romance', 'Thriller', 'Epic', 'Spy', 'psychological thriller', 'Fantasy', 'Adventure', 'Superhero', 'MCU', 'Dark comedy', 'Crime'];
 const AVAILABLE_LANGUAGES = ['Kannada', 'English', 'Hindi', 'Telugu', 'Tamil', 'Malayalam', 'Marathi', 'Bengali', 'Punjabi', 'Gujarati', 'Other'];
@@ -193,6 +194,7 @@ const defaultForm = {
   movie_status: '',
   initial_hype: '',
   badges: [],
+  franchises: [],
   language: 'English',
   ott: '',
   runtime: '120',
@@ -371,6 +373,7 @@ const MovieFormPage = ({ contentType = 'movie', onContentTypeChange = () => {} }
               movie_status: localMovie.movie_status || '',
               initial_hype: localMovie.initial_hype == null ? '' : String(localMovie.initial_hype),
               badges: Array.isArray(localMovie.badges) ? localMovie.badges : [],
+              franchises: Array.isArray(localMovie.franchises) ? localMovie.franchises : [],
               language: movieLanguages.join(', ') || 'English',
               ott: Array.isArray(localMovie.otts) ? localMovie.otts.join(', ') : (localMovie.ott || ''),
               runtime: String(localMovie.runtime || 120),
@@ -447,6 +450,7 @@ const MovieFormPage = ({ contentType = 'movie', onContentTypeChange = () => {} }
           movie_status: data.movie_status || '',
           initial_hype: data.initial_hype == null ? '' : String(data.initial_hype),
           badges: Array.isArray(data.badges) ? data.badges : [],
+          franchises: Array.isArray(data.franchises) ? data.franchises : [],
           language: movieLanguages.join(', ') || 'English',
           ott: Array.isArray(data.otts) ? data.otts.join(', ') : (data.ott || ''),
           runtime: String(data.runtime || 120),
@@ -870,6 +874,7 @@ const MovieFormPage = ({ contentType = 'movie', onContentTypeChange = () => {} }
           };
         }),
         badges: Array.isArray(form.badges) ? form.badges : [],
+        franchises: [...new Set((form.franchises || []).filter((franchise) => MARVEL_FRANCHISES.some((item) => item.slug === franchise)))],
         genre: String(form.genre || ''),
         genres: String(form.genre || '').split(',').map((genre) => genre.trim()).filter(Boolean),
         language: selectedLanguages.join(', ') || form.language || 'English',
@@ -1070,6 +1075,30 @@ const MovieFormPage = ({ contentType = 'movie', onContentTypeChange = () => {} }
         <MovieFormSection number="09" title="Production & Financial" description="Add production details and financial figures when available.">
           <div className="movie-form-grid"><label><span>Production Company</span><input name="production_company" value={form.production_company} onChange={handleChange} placeholder="Production company" /></label><div className="movie-production-country"><span>Production Country</span><strong>{form.country || 'Not set'}</strong><button type="button" className="movie-form-text-button" onClick={() => { const field = document.getElementById('movie-country-field'); field?.scrollIntoView({ behavior: 'smooth', block: 'center' }); field?.focus({ preventScroll: true }); }}>Edit country in Basic Information</button></div><label><span>Budget</span><input name="budget" type="number" min="0" step="1" value={form.budget} onChange={handleChange} placeholder="Optional" /></label><label><span>Box Office</span><input name="box_office" type="number" min="0" step="1" value={form.box_office} onChange={handleChange} placeholder="Optional" /></label></div>
           <StudioSelector selectedIds={selectedStudioIds} onChange={setSelectedStudioIds} />
+          {contentType === 'movie' && <fieldset className="movie-franchise-selector">
+            <legend>Marvel franchise assignments</legend>
+            <p>Assign this movie to one or more Marvel franchise pages. Title matching also detects recognized series names.</p>
+            <div className="movie-franchise-options">
+              {MARVEL_FRANCHISES.map((franchise) => {
+                const selected = (form.franchises || []).includes(franchise.slug);
+                return (
+                  <label key={franchise.slug} className={selected ? 'is-selected' : ''}>
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => setForm((current) => ({
+                        ...current,
+                        franchises: selected
+                          ? (current.franchises || []).filter((item) => item !== franchise.slug)
+                          : [...(current.franchises || []), franchise.slug],
+                      }))}
+                    />
+                    <span>{franchise.name}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>}
         </MovieFormSection>
 
         <MovieFormSection number="10" title="Movie Badges" description="Choose the labels that should appear with this movie.">
