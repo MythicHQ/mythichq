@@ -7,7 +7,7 @@ const SETTINGS_TABLE = 'studio_home_settings';
 const BUCKET = 'studio-images';
 const IMAGE_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
-const STUDIO_FIELDS = 'id, name, slug, description, website_url, logo_url, logo_path, background_url, background_path, background_color, overlay_opacity, logo_position, text_position, display_order, is_featured, is_active, created_at, updated_at';
+const STUDIO_FIELDS = 'id, name, slug, description, website_url, logo_url, logo_path, background_url, background_path, franchise_background_movie_ids, background_color, overlay_opacity, logo_position, text_position, display_order, is_featured, is_active, created_at, updated_at';
 const DEFAULT_SETTINGS = { featured_limit: 6 };
 export const PUBLIC_STUDIOS_CACHE_KEY = 'catalog:studios:active';
 const PUBLIC_STUDIOS_TTL = 5 * 60 * 1000;
@@ -110,6 +110,10 @@ export const saveStudio = async ({ values, files, imageUrls = {}, cropSources = 
       name, slug, description: values.description.trim(), website_url: websiteUrl,
       logo_url: logo?.url || logoUrl || (removeAssets.logo ? null : previous?.logo_url || null), logo_path: logo?.path || (logoUrl || removeAssets.logo ? null : previous?.logo_path || null),
       background_url: background?.url || backgroundUrl || (removeAssets.background ? null : previous?.background_url || null), background_path: background?.path || (backgroundUrl || removeAssets.background ? null : previous?.background_path || null),
+      franchise_background_movie_ids: Object.fromEntries(
+        Object.entries(values.franchise_background_movie_ids || previous?.franchise_background_movie_ids || {})
+          .filter(([slug, movieId]) => ['avengers', 'spider-man', 'iron-man', 'x-men', 'guardians-of-the-galaxy', 'thor'].includes(slug) && movieId),
+      ),
       background_color: values.background_color || '#171a24', overlay_opacity: Math.max(0, Math.min(0.9, Number(values.overlay_opacity) || 0.48)),
       logo_position: values.logo_position, text_position: values.text_position, display_order: Math.max(0, Number(values.display_order) || 0),
       is_featured: Boolean(values.is_featured), is_active: Boolean(values.is_active), updated_at: new Date().toISOString(),
