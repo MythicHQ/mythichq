@@ -38,6 +38,10 @@ const getMovieLanguages = (movie) => {
   return values.map((language) => String(language).trim()).filter(Boolean);
 };
 
+const getHomeTrending = (sections) => sections.curated.trending.length
+  ? sections.curated.trending
+  : sections.trending.slice(0, 10);
+
 const Home = ({ onPlayTrailer, onOpenPicker }) => {
   const today = useLocalDate();
   const cachedCatalog = getCachedPublicMovies();
@@ -46,7 +50,7 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
 
   const [catalogMovies, setCatalogMovies] = useState(() => cachedCatalog || []);
   const [heroMovies, setHeroMovies] = useState(() => cachedSections?.trending.slice(0, 5) || []);
-  const [trending, setTrending] = useState(() => cachedSections?.trending.slice(0, 10) || []);
+  const [trending, setTrending] = useState(() => cachedSections ? getHomeTrending(cachedSections) : []);
   const [nowPlaying, setNowPlaying] = useState(() => cachedSections?.newReleases || []);
   const [topRated, setTopRated] = useState(() => cachedSections?.curated.topRatedMasterpieces.slice(0, 10) || []);
   const [hiddenGems, setHiddenGems] = useState(() => cachedSections?.hiddenGems || []);
@@ -94,7 +98,7 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
       if (!isMounted) return;
       setCatalogMovies(catalog);
       const sections = getPublicMovieSections(catalog, today);
-      setTrending(sections.trending.slice(0, 10));
+      setTrending(getHomeTrending(sections));
       setNowPlaying(sections.newReleases);
       setTopRated(sections.curated.topRatedMasterpieces.slice(0, 10));
       setHiddenGems(sections.hiddenGems);
