@@ -39,7 +39,7 @@ const getMovieLanguages = (movie) => {
 };
 
 const getHomeTrending = (sections) => sections.curated.trending.length
-  ? sections.curated.trending
+  ? sections.curated.trending.slice(0, 10)
   : sections.trending.slice(0, 10);
 
 const Home = ({ onPlayTrailer, onOpenPicker }) => {
