@@ -5,6 +5,7 @@ import {
   BadgeCheck,
   Bookmark,
   Calendar,
+  ChevronDown,
   Film,
   Globe,
   Image,
@@ -14,7 +15,9 @@ import {
   Tv,
   UserCheck,
 } from 'lucide-react';
-import { fetchPublicTvShowDetails, fetchPublicTvShows, getCachedPublicTvShowDetails } from '../services/tvShows';
+import { fetchPublicTvShowDetails, getCachedPublicTvShowDetails } from '../services/tvShows';
+import { fetchPublicMovies } from '../services/movieCatalog';
+import { rankSimilarTitles } from '../utils/similarTitles';
 import CropImage from '../components/CropImage';
 import MovieTitleArtwork from '../components/MovieTitleArtwork';
 import MovieCard from '../components/MovieCard';
@@ -52,6 +55,12 @@ const getYouTubeVideoId = (value) => {
 
 const safeHttpUrl = (value) => /^https?:\/\//i.test(String(value || '').trim());
 
+const getRelatedShowsPerBatch = () => {
+  if (window.innerWidth <= 520) return 6;
+  if (window.innerWidth <= 768) return 8;
+  return 12;
+};
+
 const TvShowDetails = ({ onPlayTrailer }) => {
   const { identifier } = useParams();
   const navigate = useNavigate();
@@ -59,9 +68,17 @@ const TvShowDetails = ({ onPlayTrailer }) => {
   const { isInWatchlist, toggleWatchlist } = useWatchlist();
   const { profile } = useAuth();
   const [show, setShow] = useState(() => getCachedPublicTvShowDetails(identifier) || null);
-  const [relatedShows, setRelatedShows] = useState([]);
+  const [relatedResult, setRelatedResult] = useState({ sourceId: null, items: [] });
+  const [relatedShowsPerBatch, setRelatedShowsPerBatch] = useState(getRelatedShowsPerBatch);
+  const [relatedBatchCount, setRelatedBatchCount] = useState(1);
   const [loading, setLoading] = useState(() => getCachedPublicTvShowDetails(identifier) === undefined);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const updateRelatedShowsPerBatch = () => setRelatedShowsPerBatch(getRelatedShowsPerBatch());
+    window.addEventListener('resize', updateRelatedShowsPerBatch);
+    return () => window.removeEventListener('resize', updateRelatedShowsPerBatch);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -94,27 +111,29 @@ const TvShowDetails = ({ onPlayTrailer }) => {
   useEffect(() => {
     if (!show) return undefined;
     let active = true;
-    fetchPublicTvShows()
+    const sourceId = String(show.id);
+    fetchPublicMovies()
       .then((records) => {
-        const genres = new Set((show.genres || []).map((genre) => String(typeof genre === 'string' ? genre : genre?.name || '').toLowerCase()));
-        const related = records
-          .filter((record) => record.id !== show.id)
-          .map((record) => ({
-            record,
-            overlap: (record.genres || []).filter((genre) => genres.has(String(typeof genre === 'string' ? genre : genre?.name || '').toLowerCase())).length,
-          }))
-          .filter(({ overlap }) => overlap > 0)
-          .sort((first, second) => second.overlap - first.overlap || Number(second.record.vote_average) - Number(first.record.vote_average))
-          .slice(0, 6)
-          .map(({ record }) => record);
-        if (active) setRelatedShows(related);
+        if (!active) return;
+        setRelatedBatchCount(1);
+        setRelatedResult({
+          sourceId,
+          items: rankSimilarTitles(show, records, { contentType: 'tv_show' }),
+        });
       })
       .catch((loadError) => {
         console.error('Failed to load similar TV shows:', loadError);
-        if (active) setRelatedShows([]);
+        if (active) {
+          setRelatedBatchCount(1);
+          setRelatedResult({ sourceId, items: [] });
+        }
       });
     return () => { active = false; };
   }, [show]);
+
+  const relatedShows = relatedResult.sourceId === String(show?.id) ? relatedResult.items : [];
+  const visibleRelatedShows = relatedShows.slice(0, relatedShowsPerBatch * relatedBatchCount);
+  const hasMoreRelatedShows = visibleRelatedShows.length < relatedShows.length;
 
   const badges = useMemo(() => {
     if (!show) return [];
@@ -336,10 +355,10 @@ const TvShowDetails = ({ onPlayTrailer }) => {
           <section className="home-section movie-related-section">
             <div className="movie-related-heading">
               <div className="section-header"><h2>Similar TV Shows</h2></div>
-              <p className="movie-related-subtitle">More series you may enjoy based on genre and rating.</p>
+              <p className="movie-related-subtitle">More series connected by name, story world, genre, cast, and crew.</p>
             </div>
             <div className="movie-related-grid">
-              {relatedShows.map((relatedShow) => (
+              {visibleRelatedShows.map((relatedShow) => (
                 <MovieCard
                   key={`tv_show-${relatedShow.id}`}
                   movie={relatedShow}
@@ -350,6 +369,20 @@ const TvShowDetails = ({ onPlayTrailer }) => {
                 />
               ))}
             </div>
+            {hasMoreRelatedShows && (
+              <div className="movie-related-actions">
+                <button
+                  type="button"
+                  className="movie-related-toggle"
+                  aria-controls="movie-related-grid"
+                  aria-expanded={relatedBatchCount > 1}
+                  onClick={() => setRelatedBatchCount((count) => count + 1)}
+                >
+                  <span>Show More</span>
+                  <ChevronDown size={16} aria-hidden="true" />
+                </button>
+              </div>
+            )}
           </section>
         )}
 
