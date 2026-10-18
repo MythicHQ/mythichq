@@ -8,6 +8,7 @@ import SearchClearButton from '../../components/SearchClearButton';
 
 const CharacterNameField = ({ member, onChange }) => {
   const [history, setHistory] = useState({ memberId: null, loading: false, error: '', suggestions: [] });
+  const [showHistory, setShowHistory] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -35,15 +36,16 @@ const CharacterNameField = ({ member, onChange }) => {
         <input
           value={member.character_name || ''}
           onChange={(event) => onChange(member.id, event.target.value)}
+          onFocus={() => setShowHistory(true)}
           placeholder="Character name"
           autoComplete="off"
           aria-autocomplete="list"
-          aria-expanded={Boolean(currentHistory?.suggestions.length)}
+          aria-expanded={showHistory && Boolean(currentHistory?.suggestions.length)}
         />
       </label>
       {currentHistory?.loading && <small className="central-cast-history-status"><LoaderCircle size={13} className="viewer-spinner" /> Loading character history…</small>}
       {currentHistory?.error && <small className="central-cast-history-error" role="alert">{currentHistory.error}</small>}
-      {currentHistory?.suggestions.length > 0 && (
+      {showHistory && currentHistory?.suggestions.length > 0 && (
         <div className="central-cast-history" role="listbox" aria-label="Previously used character names">
           <strong>Previously used character names</strong>
           {currentHistory.suggestions.map((suggestion) => (
@@ -51,7 +53,10 @@ const CharacterNameField = ({ member, onChange }) => {
               type="button"
               role="option"
               key={suggestion.characterName.toLocaleLowerCase()}
-              onClick={() => onChange(member.id, suggestion.characterName)}
+              onClick={() => {
+                onChange(member.id, suggestion.characterName);
+                setShowHistory(false);
+              }}
             >
               <span>{suggestion.characterName}</span>
               <small>{suggestion.titles.map(({ title, mediaType }) => `${title} (${mediaType})`).join(', ')}</small>
