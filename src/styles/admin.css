@@ -564,6 +564,15 @@ body.admin-mode .app-main { min-height: 100vh; }
 .central-cast-history button > span { font-size: .65rem; }
 .central-cast-history button > small { color: var(--admin-muted); font-size: .55rem; line-height: 1.35; }
 .central-cast-card-actions { display: grid; gap: 2px; }
+
+.admin-position-editor { display: inline-grid; min-width: 58px; justify-items: center; gap: 2px; }
+.admin-position-editor input { box-sizing: border-box; width: 58px; min-height: 29px; padding: 0 5px; border: 1px solid var(--admin-line); border-radius: 5px; outline: 0; color: #fff; background: #11141b; font: inherit; font-size: .68rem; text-align: center; }
+.admin-position-editor input:focus { border-color: rgba(230,57,70,.72); box-shadow: 0 0 0 2px rgba(230,57,70,.12); }
+.admin-position-editor input:disabled { opacity: .65; }
+.admin-position-feedback { display: flex; min-height: 12px; align-items: center; gap: 3px; color: #86efac; font-size: .52rem; white-space: nowrap; }
+.admin-position-feedback:empty { display: none; }
+.admin-position-feedback[role="alert"] { max-width: 150px; color: #ff9ba2; white-space: normal; }
+.studio-phase-admin-movie > .admin-position-editor { flex: 0 0 58px; }
 .central-cast-card-actions button { display: grid; width: 25px; height: 25px; place-items: center; border: 1px solid transparent; border-radius: 4px; color: var(--admin-muted); background: transparent; cursor: pointer; }
 .central-cast-card-actions button:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,.08); }
 .central-cast-card-actions button:disabled { opacity: .3; cursor: default; }
