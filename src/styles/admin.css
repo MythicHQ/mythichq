@@ -1482,6 +1482,21 @@ body.admin-mode .app-main { min-height: 100vh; }
 .studio-selector-actions .movie-form-text-button { display: inline-flex; align-items: center; gap: 5px; }
 .studio-selector-actions .movie-form-text-button:disabled { opacity: .45; cursor: not-allowed; }
 .studio-selector-error { margin: 0; color: #fca5a5; font-size: .69rem; }
+.studio-franchise-backgrounds { display: grid; gap: 12px; margin: 16px 0 0; padding: 15px; border: 1px solid var(--admin-line); border-radius: 11px; background: rgba(8,10,15,.34); }
+.studio-franchise-backgrounds legend { padding: 0 7px; color: #f1f2f5; font-size: .78rem; font-weight: 800; }
+.studio-franchise-backgrounds > p { margin: 0; color: var(--admin-muted); font-size: .68rem; line-height: 1.5; }
+.studio-franchise-backgrounds .studio-franchise-background-error { color: #fca5a5; }
+.studio-franchise-background-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.studio-franchise-background-grid label { display: grid; min-width: 0; gap: 6px; color: #dce0e8; font-size: .7rem; }
+.studio-franchise-background-grid select { min-height: 38px; min-width: 0; padding: 0 10px; border: 1px solid var(--admin-line); border-radius: 7px; color: #f4f6fa; background: #171a24; font: inherit; }
+.studio-franchise-background-grid select:disabled { opacity: .55; }
+.movie-franchise-selector { display: grid; gap: 10px; margin: 16px 0 0; padding: 14px; border: 1px solid var(--admin-line); border-radius: 11px; background: rgba(8,10,15,.34); }
+.movie-franchise-selector legend { padding: 0 7px; color: #f1f2f5; font-size: .78rem; font-weight: 800; }
+.movie-franchise-selector > p { margin: 0; color: var(--admin-muted); font-size: .68rem; line-height: 1.5; }
+.movie-franchise-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.movie-franchise-options label { display: inline-flex; min-height: 36px; align-items: center; gap: 8px; padding: 0 11px; border: 1px solid var(--admin-line); border-radius: 999px; color: #cbd2de; background: rgba(7,9,14,.48); font-size: .7rem; cursor: pointer; }
+.movie-franchise-options label.is-selected { border-color: rgba(255,104,121,.48); color: #fff; background: rgba(255,104,121,.1); }
+.movie-franchise-options input { accent-color: #e63946; }
 .studio-selector-create { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 12px; border: 1px solid rgba(230,57,70,.2); border-radius: 9px; background: rgba(230,57,70,.045); }
 .studio-selector-create label { display: grid; flex: 1; gap: 6px; color: #d8dbe2; font-size: .68rem; }
 .studio-selector-create input { min-height: 38px; padding: 8px 10px; border: 1px solid var(--admin-line); border-radius: 7px; outline: 0; color: #f4f6fa; background: rgba(7,9,14,.72); font: inherit; }
@@ -1494,6 +1509,8 @@ body.admin-mode .app-main { min-height: 100vh; }
 }
 @media (max-width: 620px) {
   .studios-home-settings { align-items: flex-start; flex-direction: column; }
+  .studio-franchise-background-grid { grid-template-columns: minmax(0,1fr); }
+  .studio-franchise-background-grid { grid-template-columns: minmax(0,1fr); }
   .studio-admin-form { padding: 13px; }
   .studio-admin-fields { grid-template-columns: minmax(0, 1fr); }
   .studio-admin-fields .studio-span-all, .studio-admin-checks { grid-column: auto; }
