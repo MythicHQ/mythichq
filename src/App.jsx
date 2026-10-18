@@ -62,7 +62,7 @@ import ProfileSetupPage from './pages/Auth/ProfileSetup';
 import ProfilesPage from './pages/Profiles';
 import ProfilePage from './pages/Profile';
 import SettingsPage from './pages/Settings';
-import { StudiosPage, StudioDetailPage } from './pages/Studios';
+import { MarvelFranchisePage, StudiosPage, StudioDetailPage } from './pages/Studios';
 import StudioPhasesPage from './pages/StudioPhases';
 import HelpPage from './pages/Help';
 import ContactPage from './pages/Contact';
@@ -97,6 +97,7 @@ const APP_ROUTE_PATTERNS = [
   '/cast/:castMemberIdentifier',
   '/studios',
   '/studios/phases',
+  '/studios/:slug/franchise/:franchiseSlug',
   '/studios/:slug',
   '/login',
   '/register',
@@ -297,6 +298,7 @@ function AppContent() {
           <Route path="/cast/:castMemberIdentifier" element={<CastMemberProfile />} />
           <Route path="/studios" element={<StudiosPage />} />
           <Route path="/studios/phases" element={<StudioPhasesPage />} />
+          <Route path="/studios/:slug/franchise/:franchiseSlug" element={<MarvelFranchisePage onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/studios/:slug" element={<StudioDetailPage onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
