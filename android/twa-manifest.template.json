@@ -1,0 +1,26 @@
+{
+  "packageId": "com.mythichq.app",
+  "host": "mythichq.vercel.app",
+  "name": "MythicHQ",
+  "launcherName": "MythicHQ",
+  "display": "standalone",
+  "orientation": "any",
+  "themeColor": "#101014",
+  "themeColorDark": "#101014",
+  "navigationColor": "#101014",
+  "navigationColorDark": "#101014",
+  "navigationDividerColor": "#101014",
+  "navigationDividerColorDark": "#101014",
+  "backgroundColor": "#101014",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://mythichq.vercel.app/icons/mythichq-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersion": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": []
+}
