@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /watchlist
+Disallow: /profile
+Disallow: /profiles
+Disallow: /settings
+Disallow: /complete-profile
+Disallow: /profile-onboarding
+
+Sitemap: https://mythichq.vercel.app/sitemap.xml
