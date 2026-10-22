@@ -1109,7 +1109,7 @@ const MovieFormPage = ({ contentType = 'movie', onContentTypeChange = () => {} }
 
         <MovieFormSection number="09" title="Box Office" description="Enter the production budget and worldwide box office collection in the same currency.">
           <div className="movie-form-grid">
-            <label><span>Currency</span><input name="budget_currency" value={form.budget_currency} onChange={handleChange} list="box-office-currency-codes" maxLength={3} pattern="[A-Za-z]{3}" placeholder="USD" /><datalist id="box-office-currency-codes">{BOX_OFFICE_CURRENCIES.map((currency) => <option value={currency} key={currency} />)}</datalist></label>
+            <label><span>Currency</span><select name="budget_currency" value={form.budget_currency} onChange={handleChange}>{!BOX_OFFICE_CURRENCIES.includes(form.budget_currency) && <option value={form.budget_currency}>{form.budget_currency}</option>}{BOX_OFFICE_CURRENCIES.map((currency) => <option value={currency} key={currency}>{currency === 'USD' ? 'USD - US Dollar ($)' : currency === 'INR' ? 'INR - Indian Rupee (₹)' : currency}</option>)}</select></label>
             <label><span>Production Budget</span><input name="budget" type="number" min="0" step="any" value={form.budget} onChange={handleChange} placeholder="Optional" /></label>
             <label><span>Worldwide Box Office Collection</span><input name="worldwide_collection" type="number" min="0" step="any" value={form.worldwide_collection} onChange={handleChange} placeholder="Optional" /></label>
           </div>
