@@ -11,10 +11,10 @@
   "theme_color": "#09090b",
   "icons": [
     {
-      "src": "/app-icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/mythichq-logo.png",
+      "sizes": "768x768",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
