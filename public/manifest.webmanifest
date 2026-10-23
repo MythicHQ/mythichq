@@ -14,6 +14,22 @@
   "theme_color": "#101014",
   "categories": ["entertainment"],
   "prefer_related_applications": false,
+  "screenshots": [
+    {
+      "src": "/screenshots/mythichq-home-wide.svg",
+      "sizes": "1280x800",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "MythicHQ movie discovery home screen"
+    },
+    {
+      "src": "/screenshots/mythichq-home-narrow.svg",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "MythicHQ on mobile"
+    }
+  ],
   "icons": [
     {
       "src": "/icons/mythichq-192.png",
