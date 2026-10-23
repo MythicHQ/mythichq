@@ -4,12 +4,14 @@ import {
   ArrowRight,
   Bookmark,
   ChevronRight,
+  Download,
   Film,
   Flame,
   Globe2,
   Info,
   Search,
   Sparkles,
+  Smartphone,
 } from "lucide-react";
 import {
   fetchPublicMovies,
@@ -111,11 +113,15 @@ const welcomeStyles = `
     color: #ff4257;
   }
   .welcome-brand-mark {
-    display: block;
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
-    object-fit: contain;
+    display: grid;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    place-items: center;
+    border: 1px solid rgba(255,83,102,.3);
+    border-radius: 9px;
+    color: #ff5366;
+    background: rgba(255,83,102,.08);
   }
   .welcome-nav { display: flex; align-items: center; gap: 12px; }
   .welcome-sign-in {
@@ -279,6 +285,18 @@ const welcomeStyles = `
   .welcome-guest-card h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
   .welcome-guest-copy { max-width: 660px; margin: 10px 0 0; color: var(--welcome-muted); font-size: .85rem; line-height: 1.7; }
   .welcome-guest-copy strong { color: #fff; }
+  .welcome-app-section { width: min(100% - 48px, 1280px); margin: 0 auto; padding: 12px 0 82px; }
+  .welcome-app-card { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: clamp(20px, 4vw, 48px); overflow: hidden; padding: clamp(26px, 5vw, 54px); border: 1px solid rgba(255,83,102,.28); border-radius: 20px; background: radial-gradient(ellipse at 0% 50%,rgba(229,9,35,.2),transparent 44%), linear-gradient(115deg,#171820 0%,#101117 66%,#171018 100%); box-shadow: 0 26px 70px rgba(0,0,0,.28); }
+  .welcome-app-card::after { position: absolute; top: -120px; right: 13%; width: 330px; height: 330px; border: 1px solid rgba(255,83,102,.13); border-radius: 50%; box-shadow: 0 0 0 35px rgba(255,83,102,.025),0 0 0 70px rgba(255,83,102,.02); content: ""; pointer-events: none; }
+  .welcome-app-icon { position: relative; z-index: 1; display: grid; width: 70px; height: 70px; place-items: center; border: 1px solid rgba(255,91,109,.4); border-radius: 20px; color: #ff687a; background: linear-gradient(145deg,rgba(255,83,102,.22),rgba(255,83,102,.06)); box-shadow: inset 0 1px rgba(255,255,255,.08),0 12px 28px rgba(229,9,35,.12); }
+  .welcome-app-copy, .welcome-app-action { position: relative; z-index: 1; }
+  .welcome-app-copy .welcome-section-kicker { margin-bottom: 10px; }
+  .welcome-app-copy h2 { margin: 0; color: #fff; font-size: clamp(1.65rem,3.4vw,2.55rem); font-weight: 900; letter-spacing: -.055em; line-height: 1.08; }
+  .welcome-app-copy > p:last-child { max-width: 620px; margin: 12px 0 0; color: var(--welcome-muted); font-size: .86rem; line-height: 1.7; }
+  .welcome-app-action { display: grid; justify-items: start; gap: 11px; }
+  .welcome-app-action .welcome-primary-button { white-space: nowrap; cursor: pointer; }
+  .welcome-app-note { max-width: 245px; margin: 0; color: #858b98; font-size: .68rem; line-height: 1.5; }
+  .welcome-app-help { grid-column: 2 / -1; margin: -5px 0 0; padding: 13px 16px; border: 1px solid rgba(255,255,255,.09); border-radius: 10px; color: #c5c9d2; background: rgba(0,0,0,.2); font-size: .76rem; line-height: 1.55; }
   .welcome-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 22px; padding: 28px clamp(24px, 6vw, 88px); border-top: 1px solid var(--welcome-line); background: #07080b; }
   .welcome-footer-brand > p { margin: 8px 0 0; color: #858b98; font-size: .72rem; }
   .welcome-footer .welcome-brand-mark { width: 30px; height: 30px; flex-basis: 30px; }
@@ -330,6 +348,16 @@ const welcomeStyles = `
     .welcome-guest-card { grid-template-columns: 1fr; gap: 16px; padding: 22px; }
     .welcome-guest-icon { width: 48px; height: 48px; }
     .welcome-guest-card > .welcome-primary-button { justify-self: start; }
+    .welcome-app-section { width: calc(100% - 34px); padding: 0 0 58px; }
+    .welcome-app-card { grid-template-columns: auto 1fr; gap: 17px; padding: 22px; border-radius: 15px; }
+    .welcome-app-icon { width: 52px; height: 52px; border-radius: 15px; }
+    .welcome-app-icon svg { width: 24px; }
+    .welcome-app-copy h2 { font-size: 1.55rem; }
+    .welcome-app-copy > p:last-child { margin-top: 8px; font-size: .77rem; }
+    .welcome-app-action { grid-column: 1 / -1; width: 100%; }
+    .welcome-app-action .welcome-primary-button { width: 100%; justify-content: center; }
+    .welcome-app-note { max-width: none; text-align: center; }
+    .welcome-app-help { grid-column: 1 / -1; margin: -2px 0 0; }
     .welcome-footer { padding: 24px 19px; }
     .welcome-footer-links { gap: 13px 17px; }
     .welcome-footer-links a { font-size: .7rem; }
@@ -542,7 +570,7 @@ const WelcomePage = () => {
         {" "}
         <Link to="/" className="welcome-brand" aria-label="MythicHQ home">
           {" "}
-          <img src="/mythichq-logo.png" alt="" className="welcome-brand-mark" />{" "}
+          <span className="welcome-brand-mark"><Film size={17} /></span>{" "}
           <span className="welcome-brand-text">
             Mythic<span>HQ</span>
           </span>{" "}
@@ -769,6 +797,24 @@ const WelcomePage = () => {
             </button>{" "}
           </div>{" "}
         </section>{" "}
+        <section className="welcome-app-section" id="download-app" aria-labelledby="welcome-app-title">
+          <div className="welcome-app-card">
+            <div className="welcome-app-icon" aria-hidden="true"><Smartphone size={31} /></div>
+            <div className="welcome-app-copy">
+              <p className="welcome-section-kicker">Your cinema, one tap away</p>
+              <h2 id="welcome-app-title">Take MythicHQ with you.</h2>
+              <p>Download the Android app for a focused, full-screen movie discovery experience and keep your watchlist close wherever you go.</p>
+            </div>
+            <div className="welcome-app-action">
+              <a className="welcome-primary-button" href="/downloads/MythicHQ.apk" download="MythicHQ.apk">
+                <Download size={17} />
+                Download the App
+                <ArrowRight size={16} />
+              </a>
+              <p className="welcome-app-note">Android only · Download the APK and follow your device's installation instructions.</p>
+            </div>
+          </div>
+        </section>{" "}
       </main>{" "}
       {/* ========================= FOOTER ========================== */}{" "}
       <footer className="welcome-footer">
@@ -777,7 +823,7 @@ const WelcomePage = () => {
           {" "}
           <Link to="/" className="welcome-brand">
             {" "}
-            <img src="/mythichq-logo.png" alt="" className="welcome-brand-mark" />{" "}
+            <span className="welcome-brand-mark"><Film size={17} /></span>{" "}
             <span className="welcome-brand-text">
               Mythic<span>HQ</span>
             </span>{" "}
