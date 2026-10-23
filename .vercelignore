@@ -1,6 +1,0 @@
-.env
-.env.*
-!.env.example
-*.keystore
-*.jks
-android/project/
