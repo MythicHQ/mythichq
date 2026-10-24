@@ -8,7 +8,7 @@ import SearchClearButton from '../../components/SearchClearButton';
 
 const CharacterNameField = ({ member, onChange }) => {
   const [history, setHistory] = useState({ memberId: null, loading: false, error: '', suggestions: [] });
-  const [showHistory, setShowHistory] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -29,26 +29,34 @@ const CharacterNameField = ({ member, onChange }) => {
   const currentHistory = history.memberId === member.id
     ? history
     : { loading: true, error: '', suggestions: [] };
+  const characterQuery = String(member.character_name || '').trim().toLocaleLowerCase();
+  const visibleSuggestions = currentHistory.suggestions.filter((suggestion) =>
+    suggestion.characterName.toLocaleLowerCase().includes(characterQuery));
 
   return (
-    <div className="central-cast-character-field">
+    <div className="central-cast-character-field" onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) setShowHistory(false);
+    }}>
       <label><span>Character</span>
         <input
           value={member.character_name || ''}
-          onChange={(event) => onChange(member.id, event.target.value)}
+          onChange={(event) => {
+            onChange(member.id, event.target.value);
+            setShowHistory(true);
+          }}
           onFocus={() => setShowHistory(true)}
           placeholder="Character name"
           autoComplete="off"
           aria-autocomplete="list"
-          aria-expanded={showHistory && Boolean(currentHistory?.suggestions.length)}
+          aria-expanded={showHistory && Boolean(visibleSuggestions.length)}
         />
       </label>
       {currentHistory?.loading && <small className="central-cast-history-status"><LoaderCircle size={13} className="viewer-spinner" /> Loading character history…</small>}
       {currentHistory?.error && <small className="central-cast-history-error" role="alert">{currentHistory.error}</small>}
-      {showHistory && currentHistory?.suggestions.length > 0 && (
+      {showHistory && visibleSuggestions.length > 0 && (
         <div className="central-cast-history" role="listbox" aria-label="Previously used character names">
           <strong>Previously used character names</strong>
-          {currentHistory.suggestions.map((suggestion) => (
+          {visibleSuggestions.map((suggestion) => (
             <button
               type="button"
               role="option"
