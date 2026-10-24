@@ -1057,7 +1057,6 @@ const MovieFormPage = ({ contentType = 'movie', onContentTypeChange = () => {} }
               <button type="button" className="movie-form-text-button" onClick={() => setShowManualLanguageInput((current) => !current)}>{showManualLanguageInput ? 'Cancel custom language' : '+ Add custom language'}</button>
             </div>
             <label><span>Country</span><input id="movie-country-field" name="country" value={form.country} onChange={handleChange} placeholder="e.g. India" /></label>
-            <label><span>Production Company</span><input name="production_company" value={form.production_company} onChange={handleChange} placeholder="Production company" /></label>
             <label><span>Age Rating</span><input name="age_rating" value={form.age_rating} onChange={handleChange} placeholder="e.g. PG-13, 16+" /></label>
             <label><span>Runtime (minutes)</span><input name="runtime" type="number" min="0" value={form.runtime} onChange={handleChange} placeholder="120" /></label>
             <label><span>Director</span><input name="director" value={form.director} onChange={handleChange} placeholder="Director name" /></label>
@@ -1107,8 +1106,9 @@ const MovieFormPage = ({ contentType = 'movie', onContentTypeChange = () => {} }
           <div className="movie-form-grid"><label><span>TMDB Rating / 10</span><input name="rating" type="number" step="0.1" min="0" max="10" value={form.rating} onChange={handleChange} /></label><label><span>IMDb Rating / 10</span><input name="imdb_rating" type="number" step="0.1" min="0" max="10" value={form.imdb_rating} onChange={handleChange} placeholder="Optional" /></label><label><span>Initial Hype / 100</span><input name="initial_hype" type="number" min="0" max="100" value={form.initial_hype} onChange={handleChange} placeholder="Optional" /></label></div>
         </MovieFormSection>
 
-        <MovieFormSection number="09" title="Box Office" description="Enter the production budget and worldwide box office collection in the same currency.">
+        <MovieFormSection number="09" title="Box Office" description="Add the production company, budget, and worldwide box office collection.">
           <div className="movie-form-grid">
+            <label><span>Production Company</span><input name="production_company" value={form.production_company} onChange={handleChange} placeholder="Production company" /></label>
             <label><span>Currency</span><select name="budget_currency" value={form.budget_currency} onChange={handleChange}>{!BOX_OFFICE_CURRENCIES.includes(form.budget_currency) && <option value={form.budget_currency}>{form.budget_currency}</option>}{BOX_OFFICE_CURRENCIES.map((currency) => <option value={currency} key={currency}>{currency === 'USD' ? 'USD - US Dollar ($)' : currency === 'INR' ? 'INR - Indian Rupee (₹)' : currency}</option>)}</select></label>
             <label><span>Production Budget</span><input name="budget" type="number" min="0" step="any" value={form.budget} onChange={handleChange} placeholder="Optional" /></label>
             <label><span>Worldwide Box Office Collection</span><input name="worldwide_collection" type="number" min="0" step="any" value={form.worldwide_collection} onChange={handleChange} placeholder="Optional" /></label>
