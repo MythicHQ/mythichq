@@ -1,0 +1,47 @@
+# Movie Assets
+
+Upload local artwork into the matching folders.
+
+- `posters/`: portrait movie posters, preferably JPG or WebP, 2:3 ratio.
+- `backdrops/`: wide hero images, preferably JPG or WebP, 16:9 ratio.
+- `trailer-thumbnails/`: optional trailer preview images.
+
+Use the exact lowercase filenames listed in `src/data/movieAssets.js`.
+
+Example:
+
+`public/movie-assets/posters/the-odyssey.jpg`
+
+The website paths begin with `/movie-assets/`, so no import is needed for uploaded files.
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 736 416" role="img" aria-labelledby="title desc">
+  <title id="title">Disney Studio</title>
+  <desc id="desc">Blue Disney studio artwork with luminous vertical lines</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#03051d"/>
+      <stop offset="0.58" stop-color="#07135a"/>
+      <stop offset="1" stop-color="#101b73"/>
+    </linearGradient>
+    <linearGradient id="lights" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#18b9ff" stop-opacity="0"/>
+      <stop offset="0.2" stop-color="#18b9ff" stop-opacity="0.8"/>
+      <stop offset="0.5" stop-color="#e52cff" stop-opacity="0.7"/>
+      <stop offset="0.8" stop-color="#18b9ff" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#18b9ff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="43%" r="55%">
+      <stop offset="0" stop-color="#172a9b" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#05071f" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="736" height="416" fill="url(#background)"/>
+  <rect width="736" height="416" fill="url(#glow)"/>
+  <g opacity="0.25" stroke="#4d86ff" stroke-width="1">
+    <path d="M0 42h736M0 84h736M0 126h736M0 168h736M0 210h736M0 252h736M0 294h736M0 336h736M0 378h736"/>
+  </g>
+  <g stroke="url(#lights)" stroke-width="3" opacity="0.75">
+    <path d="M30 416V285M60 416V250M91 416V300M125 416V220M164 416V275M205 416V315M252 416V250M300 416V290M348 416V230M395 416V285M440 416V245M490 416V300M535 416V220M580 416V270M625 416V245M675 416V300M710 416V255"/>
+  </g>
+  <text x="368" y="220" text-anchor="middle" fill="#fff" font-size="83" font-family="cursive" font-style="italic" font-weight="700">Disney</text>
+</svg>
