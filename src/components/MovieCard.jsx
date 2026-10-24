@@ -70,7 +70,7 @@ const MovieCard = ({ movie, rank = null, trendingRank = false, showTrendingBadge
   if (!movie) return null;
 
   const handlePointerEnter = (event) => {
-    if (window.innerWidth <= 767 || event.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    if (recommendationCard || window.innerWidth <= 767 || event.pointerType === 'touch' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches
       || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     window.clearTimeout(previewTimerRef.current);
     previewTimerRef.current = window.setTimeout(() => {
