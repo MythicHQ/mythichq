@@ -7525,6 +7525,7 @@
 .mobile-bottom-nav { display: none; }
 .navbar-mobile-actions { display: none; }
 .home-mobile-browse { display: none; }
+.mobile-nav-search-panel { display: none; }
 
 @media (max-width: 767px) {
   .mobile-bottom-nav {
@@ -7590,7 +7591,7 @@
   .navbar-mobile-action:focus-visible { outline: 2px solid var(--accent-crimson-bright); outline-offset: 2px; }
   .navbar-mobile-badge { position: absolute; top: -4px; right: -4px; display: grid; min-width: 15px; height: 15px; place-items: center; padding: 0 3px; border: 1px solid #090a0e; border-radius: 999px; color: #fff; background: var(--accent-crimson); font-size: .55rem; font-weight: 800; }
 
-  .mobile-nav-search-panel { position: absolute; top: calc(100% + 8px); right: max(14px, env(safe-area-inset-right)); left: max(14px, env(safe-area-inset-left)); z-index: 1200; margin: 0; }
+  .mobile-nav-search-panel { position: absolute; top: calc(100% + 8px); right: max(14px, env(safe-area-inset-right)); left: max(14px, env(safe-area-inset-left)); z-index: 1200; display: block; margin: 0; }
   .mobile-nav-search-field { position: relative; display: flex; min-height: 42px; align-items: center; border: 1px solid rgba(255,255,255,.24); border-radius: 999px; color: #fff; background: rgba(42,35,38,.94); box-shadow: 0 0 18px rgba(227,59,70,.17); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
   .mobile-nav-search-field > svg { position: absolute; left: 12px; color: rgba(255,255,255,.76); pointer-events: none; }
   .mobile-nav-search-field input { width: 100%; min-width: 0; height: 40px; padding: 0 69px 0 39px; border: 0; outline: 0; border-radius: inherit; color: #fff; background: transparent; font: inherit; font-size: .78rem; }
