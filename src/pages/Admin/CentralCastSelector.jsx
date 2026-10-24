@@ -31,8 +31,10 @@ const CharacterNameField = ({ member, onChange }) => {
     : { loading: true, error: '', suggestions: [] };
   const characterQuery = String(member.character_name || '').trim().toLocaleLowerCase();
   const visibleSuggestions = currentHistory.suggestions.filter((suggestion) =>
-  const visibleSuggestions = currentHistory.suggestions;
     suggestion.characterName.toLocaleLowerCase().includes(characterQuery));
+  const visibleSuggestions = String(member.character_name || '').trim()
+    ? []
+    : currentHistory.suggestions;
 
   return (
     <div className="central-cast-character-field" onBlur={(event) => {
