@@ -492,6 +492,12 @@ const MovieDetails = ({ onPlayTrailer }) => {
     : movie.languages?.length
       ? movie.languages
       : String(movie.language || '').split(',')).map((language) => String(language || '').trim()).filter(Boolean))];
+  const moviePeople = new Set([...(directorName !== 'Unknown' ? [directorName] : []), ...cast.map((person) => person.name).filter(Boolean)].map((name) => name.toLowerCase()));
+  const samePeopleMovies = relatedMovies.filter((candidate) => [candidate.director, ...(candidate.cast || []), ...(candidate.cast_crew || [])].some((person) => {
+    const name = String(typeof person === 'object' ? person.name || person.full_name : person || '').toLowerCase();
+    return name && name !== 'unknown' && moviePeople.has(name);
+  })).slice(0, 10);
+  const recentGenreMovies = relatedMovies.filter((candidate) => candidate.created_at && detailGenres.some((genre) => (candidate.genres || candidate.genre || []).some((candidateGenre) => String(typeof candidateGenre === 'object' ? candidateGenre.name : candidateGenre).toLowerCase() === genre.toLowerCase()))).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10);
   const hypePercentage = Math.max(0, Math.min(100, engagement.hypePercentage));
   const hypeLevel = HYPE_LEVELS.find((level) => hypePercentage <= level.maximum)?.label || 'Extremely hype';
   const reviewRatingOutOfTen = mythicRating == null ? null : mythicRating * 2;
@@ -829,10 +835,13 @@ const MovieDetails = ({ onPlayTrailer }) => {
             </div>
           </section>
         )}
+        {detailGenres.length > 0 && <section className="movie-detail-section genre-explore-section"><div className="section-header"><h2>Explore This Genre</h2></div><div className="genre-explore-links">{detailGenres.map((genre) => <Link key={genre} to={`/movies?genre=${encodeURIComponent(genre)}`} className="details-taxonomy-chip genre-chip"><Film size={13} /> {genre}<span>Explore</span></Link>)}</div></section>}
+        {samePeopleMovies.length > 0 && <section className="home-section movie-related-section"><div className="section-header"><h2>From the Same Cast or Director</h2></div><MovieRail hideScrollbar>{samePeopleMovies.map((candidate) => <MovieCard key={`cast-${candidate.id}`} movie={candidate} variant="home" recommendationCard />)}</MovieRail></section>}
+        {recentGenreMovies.length > 0 && <section className="home-section movie-related-section"><div className="section-header"><h2>Recently Added in This Genre</h2></div><MovieRail hideScrollbar>{recentGenreMovies.map((candidate) => <MovieCard key={`recent-${candidate.id}`} movie={candidate} variant="home" recommendationCard />)}</MovieRail></section>}
         <section className="home-section movie-related-section">
           <div className="movie-related-heading">
             <div className="section-header">
-              <h2>You May Also Like</h2>
+              <h2>More Like This</h2>
             </div>
             <p className="movie-related-subtitle">Discover related titles through shared names, worlds, genres, cast, and more.</p>
           </div>
