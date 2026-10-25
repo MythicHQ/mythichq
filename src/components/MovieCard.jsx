@@ -81,8 +81,8 @@ const MovieCard = ({ movie, rank = null, trendingRank = false, showTrendingBadge
         const railRect = cardRef.current.closest('.horizontal-scroll-container')?.getBoundingClientRect();
         const visibleRight = Math.min(window.innerWidth - 16, railRect?.right ?? window.innerWidth - 16);
         const visibleLeft = Math.max(16, railRect?.left ?? 16);
-        const expandedWidth = Math.min(430, window.innerWidth - 48);
-        const overflowRight = cardRect.left + expandedWidth * 1.04 - visibleRight;
+        const expandedWidth = Math.min(340, window.innerWidth - 48);
+        const overflowRight = cardRect.left + expandedWidth - visibleRight;
         setPreviewShiftX(Math.min(Math.max(0, overflowRight), Math.max(0, cardRect.left - visibleLeft)));
       }
       window.dispatchEvent(new CustomEvent(STOP_CARD_PREVIEW_EVENT, { detail: previewInstanceId }));
@@ -170,9 +170,9 @@ const MovieCard = ({ movie, rank = null, trendingRank = false, showTrendingBadge
       ref={cardRef}
       className={`movie-card${cardPreviewActive ? ' movie-card-preview-active' : ''}${recommendationCard ? ' movie-card-recommendation' : ''}${trendingRank ? ' movie-card-trending-rank' : ''}${variant === 'home' ? ' home-movie-card' : ''}`}
       style={cardPreviewActive ? {
-        width: 'min(430px, calc(100vw - 48px))',
+        width: 'min(340px, calc(100vw - 48px))',
         maxWidth: 'calc(100vw - 48px)',
-        flexBasis: 'min(430px, calc(100vw - 48px))',
+        flexBasis: 'min(340px, calc(100vw - 48px))',
         '--movie-card-preview-shift-x': `${-previewShiftX}px`,
       } : undefined}
       onClick={handleCardClick}
