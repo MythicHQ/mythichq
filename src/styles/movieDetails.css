@@ -466,6 +466,14 @@ a.movie-provider-card:hover,.movie-provider-card:focus-visible { border-color: r
     linear-gradient(90deg, rgba(255,255,255,.026) 1px, transparent 1px);
   background-size: 48px 48px;
 }
+.movie-details-page .genre-explore-links { display: flex; flex-wrap: wrap; gap: 10px; }
+.movie-details-page .genre-explore-links a { min-height: 38px; gap: 8px; text-decoration: none; }
+.movie-details-page .genre-explore-links a span { margin-left: 5px; color: #ff929d; font-size: .72rem; font-weight: 750; }
+.movie-details-page .movie-related-section > .section-header h2 { margin: 0; font-size: 1.25rem; }
+@media (max-width: 600px) {
+  .movie-details-page .genre-explore-links { gap: 7px; }
+  .movie-details-page .genre-explore-links a { min-height: 34px; padding: 6px 9px; font-size: .72rem; }
+}
 .movie-details-page .movie-related-heading::after {
   position: absolute;
   z-index: -1;
