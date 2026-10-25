@@ -14,6 +14,7 @@
   --accent-crimson-rgb: 227, 59, 70;
   --accent-crimson-bright-rgb: 255, 100, 112;
   --accent-crimson-glow: rgba(var(--accent-crimson-rgb), 0.4);
+  --accent-on-color: #ffffff;
 
   --text-primary: #FFFFFF;
   --text-secondary: #b8bbc4;
@@ -34,7 +35,7 @@
   /* Shadows */
   --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 0 25px rgba(229, 9, 20, 0.35);
+  --shadow-glow: 0 0 25px rgba(var(--accent-crimson-rgb), 0.35);
 }
 
 html[data-theme='cinema'] {
@@ -56,30 +57,6 @@ html[data-theme='cinema'] body {
   background-image: linear-gradient(rgba(130, 160, 210, 0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(130, 160, 210, 0.018) 1px, transparent 1px), radial-gradient(circle at 76% -10%, rgba(83, 111, 170, 0.2), transparent 32rem);
 }
 
-html[data-accent='violet'] {
-  --accent-crimson: #8b5cf6;
-  --accent-crimson-bright: #a78bfa;
-  --accent-crimson-rgb: 139, 92, 246;
-  --accent-crimson-bright-rgb: 167, 139, 250;
-  --accent-crimson-glow: rgba(139, 92, 246, 0.24);
-}
-
-html[data-accent='teal'] {
-  --accent-crimson: #14b8a6;
-  --accent-crimson-bright: #2dd4bf;
-  --accent-crimson-rgb: 20, 184, 166;
-  --accent-crimson-bright-rgb: 45, 212, 191;
-  --accent-crimson-glow: rgba(20, 184, 166, 0.22);
-}
-
-html[data-accent='amber'] {
-  --accent-crimson: #f59e0b;
-  --accent-crimson-bright: #fbbf24;
-  --accent-crimson-rgb: 245, 158, 11;
-  --accent-crimson-bright-rgb: 251, 191, 36;
-  --accent-crimson-glow: rgba(245, 158, 11, 0.22);
-}
-
 body[data-layout='compact'] .movies-grid {
   grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
   gap: 18px 12px;
@@ -93,7 +70,7 @@ body[data-layout='compact'] .movies-grid {
 
 html, body {
   background-color: var(--bg-dark);
-  background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px), radial-gradient(circle at 76% -10%, rgba(227, 59, 70, 0.16), transparent 32rem);
+  background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px), radial-gradient(circle at 76% -10%, rgba(var(--accent-crimson-rgb), 0.16), transparent 32rem);
   background-size: 48px 48px, 48px 48px, auto;
   color: var(--text-primary);
   font-family: var(--font-family);
