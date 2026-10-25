@@ -598,6 +598,19 @@ a.movie-provider-card:hover,.movie-provider-card:focus-visible { border-color: r
 }
 .movie-recommendation-rating svg { color: #f5c400; }
 .movie-details-page .movie-card-recommendation .movie-card-info { display: none; }
+.movie-details-page .movie-related-section .home-movie-card {
+  flex: 0 0 clamp(124px, 15vw, 168px);
+  width: clamp(124px, 15vw, 168px);
+  gap: 7px;
+}
+.movie-details-page .movie-related-section .home-movie-card .movie-poster-wrapper {
+  height: auto;
+  aspect-ratio: 2 / 3;
+  border-radius: 10px;
+}
+.movie-details-page .movie-related-section .home-movie-card .movie-card-info { padding: 0 1px; }
+.movie-details-page .movie-related-section .home-movie-card .home-card-title { font-size: .84rem; line-height: 1.25; }
+.movie-details-page .movie-related-section .home-movie-card .movie-card-year { font-size: .65rem; }
 
 .tv-show-details-page .details-meta-row .meta-item { min-width: 0; }
 .tv-show-details-page .tv-show-rating-section { margin-bottom: 30px; }
