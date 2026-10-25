@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './Admin/AuthContext';
 import { supabase } from '../lib/supabase';
 import {
+  ACCENT_COLOR_OPTIONS,
   applyAppearanceSettings,
   DEFAULT_USER_SETTINGS,
   loadUserSettings,
@@ -28,13 +29,6 @@ const SECTIONS = [
 const GENRES = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Science Fiction', 'Thriller'];
 const MOVIE_LANGUAGES = ['English', 'Hindi', 'Japanese', 'Korean', 'Spanish', 'French', 'Tamil', 'Telugu'];
 const CATEGORIES = ['Movies', 'TV shows', 'Documentaries', 'Animation'];
-const ACCENTS = [
-  { value: 'crimson', label: 'Crimson', color: '#e33b46' },
-  { value: 'violet', label: 'Violet', color: '#8b5cf6' },
-  { value: 'teal', label: 'Teal', color: '#14b8a6' },
-  { value: 'amber', label: 'Amber', color: '#f59e0b' },
-];
-
 const settingsEqual = (left, right) => JSON.stringify(left) === JSON.stringify(right);
 
 const SettingsPage = () => {
@@ -386,7 +380,7 @@ const SettingsPage = () => {
                 </div>
               </SettingsGroup>
               <SettingsGroup title="Accent color">
-                <div className="settings-accent-row">{ACCENTS.map((accent) => <button key={accent.value} type="button" aria-label={`${accent.label} accent`} aria-pressed={settings.appearance.accent === accent.value} className={settings.appearance.accent === accent.value ? 'is-selected' : ''} style={{ '--settings-accent': accent.color }} onClick={() => changeSetting('appearance', 'accent', accent.value)}><span />{accent.label}</button>)}</div>
+                <div className="settings-accent-row">{ACCENT_COLOR_OPTIONS.map((accent) => <button key={accent.value} type="button" aria-label={`${accent.label} accent`} aria-pressed={settings.appearance.accent === accent.value} className={settings.appearance.accent === accent.value ? 'is-selected' : ''} style={{ '--settings-accent': accent.color }} onClick={() => changeSetting('appearance', 'accent', accent.value)}><span aria-hidden="true" />{accent.label}</button>)}</div>
               </SettingsGroup>
               <SettingsGroup title="Language and browsing">
                 <div className="settings-form-grid">
