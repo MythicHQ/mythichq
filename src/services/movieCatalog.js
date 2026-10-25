@@ -174,9 +174,14 @@ export const getMovieSlug = (movie = {}) => {
   return slugifyMovieTitle(movie.title || 'movie');
 };
 
-export const getMovieDetailRoute = (movie = {}) => movie.record_type === 'tv_show'
-  ? `/tv-show/${encodeURIComponent(movie.id)}`
-  : `/movie/${encodeURIComponent(getMovieSlug(movie))}`;
+export const getMovieDetailRoute = (movie = {}) => {
+  const identifier = movie.id != null && String(movie.id).trim() !== ''
+    ? String(movie.id)
+    : getMovieSlug(movie);
+  return movie.record_type === 'tv_show'
+    ? `/tv-show/${encodeURIComponent(identifier)}`
+    : `/movie/${encodeURIComponent(identifier)}`;
+};
 
 const getReleaseDateValue = (movie = {}) => movie.release_date || movie.releaseDate || null;
 
@@ -532,14 +537,19 @@ export const fetchMovieById = async (movieIdentifier) => {
       const numericId = Number(normalizedIdentifier);
 
       if (Number.isInteger(numericId) && numericId > 0) {
-        const { data, error } = await supabase.from('movies').select('*')
-          .eq('id', numericId)
-          .eq('is_published', true)
-          .maybeSingle();
-        if (error) throw error;
-        if (!data || REMOVED_MOVIE_TITLES.has(String(data.title || '').trim().toLowerCase())) return null;
-        const [resolvedMovie] = await resolveMovieMediaPathsList([normalizeMovieRecord(data)]);
-        return resolvedMovie;
+        try {
+          const { data, error } = await supabase.from('movies').select('*')
+            .eq('id', numericId)
+            .eq('is_published', true)
+            .maybeSingle();
+          if (!error && data && !REMOVED_MOVIE_TITLES.has(String(data.title || '').trim().toLowerCase())) {
+            const [resolvedMovie] = await resolveMovieMediaPathsList([normalizeMovieRecord(data)]);
+            return resolvedMovie;
+          }
+          if (error) console.warn('Direct movie lookup failed; falling back to the public catalog:', error);
+        } catch (lookupError) {
+          console.warn('Direct movie lookup failed; falling back to the public catalog:', lookupError);
+        }
       }
 
       const allMovies = await fetchPublicMovies();
