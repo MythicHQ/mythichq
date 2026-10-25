@@ -170,6 +170,27 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
       .filter(Boolean);
   }, [catalogMovies, loading, watchlist, watchlistLoading]);
 
+  const movieCatalog = useMemo(() => catalogMovies.filter((movie) => movie.record_type !== 'tv_show' && movie.content_type !== 'tv_show'), [catalogMovies]);
+  const favoriteGenres = useMemo(() => {
+    const raw = selectedViewerProfile?.favorite_genres ?? user?.user_metadata?.favorite_genres ?? '';
+    return (Array.isArray(raw) ? raw : String(raw).split(',')).map((genre) => String(genre).trim().toLowerCase()).filter(Boolean);
+  }, [selectedViewerProfile, user]);
+  const tastePicks = useMemo(() => {
+    const matching = movieCatalog.filter((movie) => {
+      const genres = (movie.genres || movie.genre || []).map((genre) => String(typeof genre === 'object' ? genre.name : genre).toLowerCase());
+      return favoriteGenres.some((genre) => genres.includes(genre));
+    });
+    return (matching.length ? matching : trending).slice(0, 10);
+  }, [favoriteGenres, movieCatalog, trending]);
+  const newlyAdded = useMemo(() => [...movieCatalog].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 10), [movieCatalog]);
+  const becauseYouWatched = useMemo(() => {
+    const seeds = myListMovies.slice(0, 3);
+    if (!seeds.length) return [];
+    const genreNames = new Set(seeds.flatMap((movie) => (movie.genres || movie.genre || []).map((genre) => String(typeof genre === 'object' ? genre.name : genre).toLowerCase())));
+    const seedIds = new Set(seeds.map((movie) => String(movie.id)));
+    return movieCatalog.filter((movie) => !seedIds.has(String(movie.id)) && (movie.genres || movie.genre || []).some((genre) => genreNames.has(String(typeof genre === 'object' ? genre.name : genre).toLowerCase()))).slice(0, 10);
+  }, [movieCatalog, myListMovies]);
+
   return (
     <div className="home-page">
       <div className="home-mobile-browse">
@@ -184,6 +205,12 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
 
       {/* Main Container */}
       <div className="main-content-wrapper">
+        <section className="home-section discovery-section">
+          <div className="section-header home-section-header"><div className="home-section-title-wrap"><h2 className="home-section-title">PICKED FOR YOUR TASTE</h2><span className="home-section-subtitle">{favoriteGenres.length ? `Stories in ${favoriteGenres.slice(0, 3).join(', ')}` : 'Popular picks to get you started'}</span></div>{!favoriteGenres.length && <Link to="/profile" className="section-see-all">Choose genres <ChevronRight size={18} /></Link>}</div>
+          <MovieRail hideScrollbar>{loading ? <SkeletonCard count={6} /> : tastePicks.map((movie) => <MovieCard key={`taste-${movie.id}`} movie={movie} variant="home" showWatchlist={false} onPlayTrailer={onPlayTrailer} />)}</MovieRail>
+        </section>
+        {becauseYouWatched.length > 0 && <section className="home-section discovery-section"><div className="section-header home-section-header"><div className="home-section-title-wrap"><h2 className="home-section-title">BECAUSE YOU WATCHED…</h2><span className="home-section-subtitle">Based on movies in your list</span></div></div><MovieRail hideScrollbar>{becauseYouWatched.map((movie) => <MovieCard key={`watched-${movie.id}`} movie={movie} variant="home" showWatchlist={false} onPlayTrailer={onPlayTrailer} />)}</MovieRail></section>}
+        {newlyAdded.length > 0 && <section className="home-section discovery-section"><div className="section-header home-section-header"><div className="home-section-title-wrap"><h2 className="home-section-title">NEWLY ADDED</h2><span className="home-section-subtitle">Fresh additions to MythicHQ</span></div><Link to="/new-releases" className="section-see-all">Explore <ChevronRight size={18} /></Link></div><MovieRail hideScrollbar>{newlyAdded.map((movie) => <div className="newly-added-card" key={`added-${movie.id}`}><span className="newly-added-label">New</span><MovieCard movie={movie} variant="home" showWatchlist={false} onPlayTrailer={onPlayTrailer} />{movie.created_at && <time dateTime={movie.created_at}>{new Date(movie.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</time>}</div>)}</MovieRail></section>}
         {/* 2. 🔥 TRENDING NOW SECTION */}
         <section className="home-section home-trending-section">
           <div className="section-header home-trending-header">
@@ -192,7 +219,7 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
                 <Flame size={20} color="#FF2E4D" />
               </div>
               <div className="home-trending-title-wrap">
-                <h2 className="home-trending-title">TRENDING</h2>
+                <h2 className="home-trending-title">TRENDING NOW</h2>
                 <span className="home-trending-subtitle">What everyone is watching.</span>
               </div>
             </div>
