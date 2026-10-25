@@ -381,7 +381,7 @@ export const normalizeMovieRecord = (movie = {}) => {
     ),
     trailer_key: movie.trailer_key || getYouTubeKey(movie.trailer_url || movie.trailerUrl || ''),
     description: movie.description || movie.overview || 'No description available.',
-    created_at: movie.created_at || new Date().toISOString(),
+    created_at: movie.created_at || null,
     trending_now: normalizeBoolean(movie.trending_now ?? movie.trendingNow ?? movie.trending),
     new_releases: normalizeBoolean(movie.new_releases ?? movie.newReleases),
     top_rated_masterpieces: normalizeBoolean(movie.top_rated_masterpieces ?? movie.topRatedMasterpieces),
