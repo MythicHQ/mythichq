@@ -1,8 +1,34 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MovieRail = ({ children, hideScrollbar = false, loop = false }) => {
   const railRef = useRef(null);
+  const [railPosition, setRailPosition] = useState({ canScroll: false, atStart: true, atEnd: true });
+
+  const updateRailPosition = useCallback(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const maxScrollLeft = Math.max(0, rail.scrollWidth - rail.clientWidth);
+    setRailPosition({
+      canScroll: maxScrollLeft > 2,
+      atStart: rail.scrollLeft <= 2,
+      atEnd: rail.scrollLeft >= maxScrollLeft - 2,
+    });
+  }, []);
+
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return undefined;
+    updateRailPosition();
+    rail.addEventListener('scroll', updateRailPosition, { passive: true });
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateRailPosition) : null;
+    observer?.observe(rail);
+    if (rail.firstElementChild) observer?.observe(rail.firstElementChild);
+    return () => {
+      rail.removeEventListener('scroll', updateRailPosition);
+      observer?.disconnect();
+    };
+  }, [children, updateRailPosition]);
 
   const moveRail = (direction) => {
     const rail = railRef.current;
@@ -28,15 +54,15 @@ const MovieRail = ({ children, hideScrollbar = false, loop = false }) => {
 
   return (
     <div className={`movie-rail${hideScrollbar ? ' hide-scrollbar' : ''}`}>
-      <button className="movie-rail-arrow movie-rail-arrow-left" onClick={() => moveRail(-1)} aria-label="Show previous movies">
+      {railPosition.canScroll && !railPosition.atStart && <button className="movie-rail-arrow movie-rail-arrow-left" onClick={() => moveRail(-1)} aria-label="Show previous movies">
         <ChevronLeft size={22} />
-      </button>
+      </button>}
       <div ref={railRef} className="horizontal-scroll-container">
         {children}
       </div>
-      <button className="movie-rail-arrow movie-rail-arrow-right" onClick={() => moveRail(1)} aria-label="Show more movies">
+      {railPosition.canScroll && !railPosition.atEnd && <button className="movie-rail-arrow movie-rail-arrow-right" onClick={() => moveRail(1)} aria-label="Show more movies">
         <ChevronRight size={22} />
-      </button>
+      </button>}
     </div>
   );
 };
