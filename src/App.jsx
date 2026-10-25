@@ -195,6 +195,31 @@ function ProfileSetupRoute() {
     : <Navigate to="/" replace />;
 }
 
+class MovieDetailsErrorBoundary extends React.Component {
+  state = { error: null };
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Movie details page crashed while rendering:', error, errorInfo);
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <div className="page-container">
+        <div className="empty-state" role="alert">
+          <h3>Movie details could not be displayed</h3>
+          <p>An unexpected error occurred while opening this movie. Please try again.</p>
+          <a className="btn-primary" href="/movies">Back to Movies</a>
+        </div>
+      </div>
+    );
+  }
+}
+
 const PROFILE_FLOW_EXEMPT_PATHS = [
   '/profiles',
   '/profile-onboarding',
@@ -383,7 +408,7 @@ function AppContent() {
           <Route path="/genre/:id" element={<GenreDetail onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/upcoming" element={<Upcoming onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/search" element={<SearchPage onPlayTrailer={handlePlayTrailer} />} />
-          <Route path="/movie/:movieIdentifier" element={<MovieDetails onPlayTrailer={handlePlayTrailer} />} />
+          <Route path="/movie/:movieIdentifier" element={<MovieDetailsErrorBoundary><MovieDetails onPlayTrailer={handlePlayTrailer} /></MovieDetailsErrorBoundary>} />
           <Route path="/tv-show/:identifier" element={<TvShowDetails onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/cast/:castMemberIdentifier" element={<CastMemberProfile />} />
           <Route path="/studios" element={<StudiosPage />} />
