@@ -41,6 +41,7 @@ import { useWatchlist } from './Admin/WatchlistContext';
 import { useAuth } from './Admin/AuthContext';
 import RatingBadge from '../components/RatingBadge';
 import MovieCard from '../components/MovieCard';
+import MovieRail from '../components/MovieRail';
 import MovieTitleArtwork from '../components/MovieTitleArtwork';
 import BoxOfficePerformance from '../components/BoxOfficePerformance';
 import { fetchMovieById, fetchPublicMovies, getCachedMovieById } from '../services/movieCatalog';
@@ -320,8 +321,9 @@ const MovieDetails = ({ onPlayTrailer }) => {
           onPlayTrailer(data);
         }
       })
-      .catch(() => {
-        if (isMounted) setError('Failed to fetch details for this movie.');
+      .catch((detailsError) => {
+        console.error('Failed to prepare movie details:', detailsError);
+        if (isMounted) setError(detailsError?.message ? `Failed to fetch details for this movie: ${detailsError.message}` : 'Failed to fetch details for this movie.');
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -458,8 +460,9 @@ const MovieDetails = ({ onPlayTrailer }) => {
   const inWatchlist = isInWatchlist(movie);
   // Cast & Crew
   const credits = movie.credits || {};
-  const cast = credits.cast?.slice(0, 10) || [];
-  const directorObj = credits.crew?.find((c) => c.job === 'Director');
+  const cast = Array.isArray(credits.cast) ? credits.cast.slice(0, 10) : [];
+  const crew = Array.isArray(credits.crew) ? credits.crew : [];
+  const directorObj = crew.find((c) => c.job === 'Director');
   const directorName = directorObj ? directorObj.name : 'Unknown';
 
   const trailerObj =
@@ -479,7 +482,8 @@ const MovieDetails = ({ onPlayTrailer }) => {
         : [])
     .map((platform) => String(platform).trim())
     .filter(Boolean))];
-  const detailGenres = [...new Set((movie.genres || [])
+  const sourceGenres = Array.isArray(movie.genres) ? movie.genres : Array.isArray(movie.genre) ? movie.genre : typeof movie.genre === 'string' ? movie.genre.split(',') : [];
+  const detailGenres = [...new Set(sourceGenres
     .map((genre) => {
       const value = typeof genre === 'string' ? genre : genre?.name || genre?.id;
       if (value == null) return '';
@@ -487,17 +491,26 @@ const MovieDetails = ({ onPlayTrailer }) => {
       return /^\d+$/.test(name) ? GENRES_MAP[name] || '' : name;
     })
     .filter((genre) => genre && !/^\d+$/.test(genre)) )];
-  const detailLanguages = [...new Set((movie.spoken_languages?.length
+  const sourceLanguages = Array.isArray(movie.spoken_languages) && movie.spoken_languages.length
     ? movie.spoken_languages.map((language) => language?.english_name || language?.name)
-    : movie.languages?.length
+    : Array.isArray(movie.languages) && movie.languages.length
       ? movie.languages
-      : String(movie.language || '').split(',')).map((language) => String(language || '').trim()).filter(Boolean))];
-  const moviePeople = new Set([...(directorName !== 'Unknown' ? [directorName] : []), ...cast.map((person) => person.name).filter(Boolean)].map((name) => name.toLowerCase()));
-  const samePeopleMovies = relatedMovies.filter((candidate) => [candidate.director, ...(candidate.cast || []), ...(candidate.cast_crew || [])].some((person) => {
+      : typeof movie.languages === 'string'
+        ? movie.languages.split(',')
+        : String(movie.language || '').split(',');
+  const detailLanguages = [...new Set(sourceLanguages.map((language) => String(language || '').trim()).filter(Boolean))];
+  const writerValue = movie.writer || (Array.isArray(movie.writers) ? movie.writers.join(', ') : String(movie.writers || ''));
+  const productionCompanyValue = movie.production_company || (Array.isArray(movie.production_companies) ? movie.production_companies.map((company) => typeof company === 'string' ? company : company?.name).filter(Boolean).join(', ') : String(movie.production_companies || ''));
+  const countryValue = movie.country || (Array.isArray(movie.origin_country) ? movie.origin_country.join(', ') : String(movie.origin_country || ''));
+  const moviePeople = new Set([...(directorName !== 'Unknown' ? [directorName] : []), ...cast.map((person) => person?.name).filter(Boolean)].map((name) => String(name).toLowerCase()));
+  const samePeopleMovies = relatedMovies.filter((candidate) => [candidate.director, ...(Array.isArray(candidate.cast) ? candidate.cast : []), ...(Array.isArray(candidate.cast_crew) ? candidate.cast_crew : [])].some((person) => {
     const name = String(typeof person === 'object' ? person.name || person.full_name : person || '').toLowerCase();
     return name && name !== 'unknown' && moviePeople.has(name);
   })).slice(0, 10);
-  const recentGenreMovies = relatedMovies.filter((candidate) => candidate.created_at && detailGenres.some((genre) => (candidate.genres || candidate.genre || []).some((candidateGenre) => String(typeof candidateGenre === 'object' ? candidateGenre.name : candidateGenre).toLowerCase() === genre.toLowerCase()))).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10);
+  const recentGenreMovies = relatedMovies.filter((candidate) => {
+    const candidateGenres = Array.isArray(candidate.genres) ? candidate.genres : Array.isArray(candidate.genre) ? candidate.genre : typeof candidate.genre === 'string' ? candidate.genre.split(',') : [];
+    return candidate.created_at && detailGenres.some((genre) => candidateGenres.some((candidateGenre) => String(typeof candidateGenre === 'object' ? candidateGenre.name : candidateGenre).toLowerCase() === genre.toLowerCase()));
+  }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10);
   const hypePercentage = Math.max(0, Math.min(100, engagement.hypePercentage));
   const hypeLevel = HYPE_LEVELS.find((level) => hypePercentage <= level.maximum)?.label || 'Extremely hype';
   const reviewRatingOutOfTen = mythicRating == null ? null : mythicRating * 2;
@@ -535,7 +548,7 @@ const MovieDetails = ({ onPlayTrailer }) => {
       job: person.job || person.role || 'Crew',
       imageUrl: isSafeHttpUrl(person.image_url) ? person.image_url : '',
     }));
-  const fallbackCrewCards = (credits.crew || [])
+  const fallbackCrewCards = crew
     .filter((person) => person?.name)
     .map((person) => ({
       id: person.id,
@@ -835,9 +848,6 @@ const MovieDetails = ({ onPlayTrailer }) => {
             </div>
           </section>
         )}
-        {detailGenres.length > 0 && <section className="movie-detail-section genre-explore-section"><div className="section-header"><h2>Explore This Genre</h2></div><div className="genre-explore-links">{detailGenres.map((genre) => <Link key={genre} to={`/movies?genre=${encodeURIComponent(genre)}`} className="details-taxonomy-chip genre-chip"><Film size={13} /> {genre}<span>Explore</span></Link>)}</div></section>}
-        {samePeopleMovies.length > 0 && <section className="home-section movie-related-section"><div className="section-header"><h2>From the Same Cast or Director</h2></div><MovieRail hideScrollbar>{samePeopleMovies.map((candidate) => <MovieCard key={`cast-${candidate.id}`} movie={candidate} variant="home" recommendationCard />)}</MovieRail></section>}
-        {recentGenreMovies.length > 0 && <section className="home-section movie-related-section"><div className="section-header"><h2>Recently Added in This Genre</h2></div><MovieRail hideScrollbar>{recentGenreMovies.map((candidate) => <MovieCard key={`recent-${candidate.id}`} movie={candidate} variant="home" recommendationCard />)}</MovieRail></section>}
         <section className="home-section movie-related-section">
           <div className="movie-related-heading">
             <div className="section-header">
@@ -900,11 +910,11 @@ const MovieDetails = ({ onPlayTrailer }) => {
               ['Runtime', movie.runtime ? formatRuntime(movie.runtime) : ''],
               ['Genre', detailGenres.join(', ')],
               ['Language', detailLanguages.join(', ')],
-              ['Country', movie.country || movie.origin_country?.join(', ') || ''],
+              ['Country', countryValue],
               ['Age rating', movie.age_rating || ''],
               ['Director', movie.director || (directorName !== 'Unknown' ? directorName : '')],
-              ['Writer', movie.writer || (movie.writers || []).join(', ')],
-              ['Production company', movie.production_company || (movie.production_companies || []).map((company) => company.name).join(', ')],
+              ['Writer', writerValue],
+              ['Production company', productionCompanyValue],
               ['Status', movie.movie_status || movie.release_status || ''],
             ].filter(([, value]) => value)
               .map(([label, value]) => (
@@ -1016,6 +1026,10 @@ const MovieDetails = ({ onPlayTrailer }) => {
             )}
           </section>
         )}
+
+        {recentGenreMovies.length > 0 && <section className="home-section movie-related-section"><div className="section-header"><h2>Recently Added in This Genre</h2></div><MovieRail hideScrollbar>{recentGenreMovies.map((candidate) => <MovieCard key={`recent-${candidate.id}`} movie={candidate} variant="home" recommendationCard />)}</MovieRail></section>}
+        {samePeopleMovies.length > 0 && <section className="home-section movie-related-section"><div className="section-header"><h2>From the Same Cast or Director</h2></div><MovieRail hideScrollbar>{samePeopleMovies.map((candidate) => <MovieCard key={`cast-${candidate.id}`} movie={candidate} variant="home" recommendationCard />)}</MovieRail></section>}
+        {detailGenres.length > 0 && <section className="movie-detail-section genre-explore-section"><div className="section-header"><h2>Explore This Genre</h2></div><div className="genre-explore-links">{detailGenres.map((genre) => <Link key={genre} to={`/movies?genre=${encodeURIComponent(genre)}`} className="details-taxonomy-chip genre-chip"><Film size={13} /> {genre}<span>Explore</span></Link>)}</div></section>}
 
         {/* 4. EXISTING REVIEWS */}
         <div id="movie-reviews" className="movie-detail-reviews-anchor">
