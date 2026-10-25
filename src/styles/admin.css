@@ -1428,7 +1428,7 @@ body.admin-mode .app-main { min-height: 100vh; }
 .browse-category-image-url:disabled { opacity: .6; cursor: wait; }
 .browse-category-admin-actions .browse-category-reset { flex-basis: 100%; justify-content: center; color: #fca5a5; }
 .browse-category-progress { position: relative; height: 4px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.1); }
-.browse-category-progress span { position: absolute; inset: 0 auto 0 -35%; width: 35%; border-radius: inherit; background: #ef4056; animation: browse-category-progress 1.1s ease-in-out infinite; }
+.browse-category-progress span { position: absolute; inset: 0 auto 0 -35%; width: 35%; border-radius: inherit; background: var(--accent-crimson-bright); box-shadow: 0 0 10px var(--accent-crimson-glow); animation: browse-category-progress 1.1s ease-in-out infinite; }
 .browse-category-hint { margin: 0; color: var(--admin-muted); font-size: .65rem; }
 @keyframes browse-category-progress { to { left: 100%; } }
 @media (max-width: 640px) {
