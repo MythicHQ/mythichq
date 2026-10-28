@@ -29,3 +29,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
+const launchSplash = document.getElementById('launch-splash');
+if (launchSplash) {
+  window.setTimeout(() => {
+    launchSplash.classList.add('is-hiding');
+    window.setTimeout(() => launchSplash.remove(), 300);
+  }, 2200);
+}
