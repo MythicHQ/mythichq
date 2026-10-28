@@ -1,10 +1,11 @@
-const CACHE_NAME = 'mythichq-shell-v5';
+const CACHE_NAME = 'mythichq-shell-v6';
 const APP_SHELL = [
   '/index.html',
   '/offline.html',
   '/manifest.webmanifest',
-  '/icons/mythichq-192.png',
-  '/icons/mythichq-512.png',
+  '/mythichq-splash.webp',
+  '/icons/mythichq-app-192.png',
+  '/icons/mythichq-app-512.png',
   '/MythicHQ-favicon.png',
 ];
 
