@@ -32,13 +32,13 @@
   ],
   "icons": [
     {
-      "src": "/icons/mythichq-192.png",
+      "src": "/icons/mythichq-app-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/mythichq-512.png",
+      "src": "/icons/mythichq-app-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
@@ -50,14 +50,14 @@
       "short_name": "Trending",
       "description": "Browse trending movies and shows",
       "url": "/trending",
-      "icons": [{ "src": "/icons/mythichq-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/icons/mythichq-app-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "My List",
       "short_name": "My List",
       "description": "Open your watchlist",
       "url": "/watchlist",
-      "icons": [{ "src": "/icons/mythichq-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/icons/mythichq-app-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }
