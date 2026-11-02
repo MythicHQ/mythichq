@@ -41,6 +41,7 @@ import { TrendingRankProvider } from './contexts/TrendingRankContext';
 
 import Home from './pages/Home';
 import WelcomePage from './pages/in';
+import DownloadAppPage from './pages/DownloadApp';
 import Movies from './pages/Movies';
 import TvShows from './pages/TvShows';
 import Trending from './pages/Trending';
@@ -95,6 +96,7 @@ const APP_ROUTE_PATTERNS = [
   '/genre/:id',
   '/upcoming',
   '/search',
+  '/download-app',
   '/movie/:movieIdentifier',
   '/tv-show/:identifier',
   '/cast/:castMemberIdentifier',
@@ -276,6 +278,7 @@ const getRouteMetadata = (pathname, search) => {
   const genre = pathname.match(/^\/genre\/([^/]+)/);
   if (genre) return [`${slugLabel(genre[1])} Movies | MythicHQ`, `Browse ${slugLabel(genre[1])} movies and discover what to watch next.`];
   if (pathname.startsWith('/cast/')) return [`${slugLabel(pathname.split('/').pop())} | MythicHQ`, 'Explore cast credits and related movies on MythicHQ.'];
+  if (pathname === '/download-app') return ['Download the MythicHQ App', 'Get the MythicHQ Android app and learn how to install it.'];
   if (pathname.startsWith('/studios/')) return [`${slugLabel(pathname.split('/').pop())} | MythicHQ`, 'Explore this studio, its franchises, and related movies on MythicHQ.'];
   return ['MythicHQ — Discover Movies Worth Watching', 'Discover movies, TV shows, and stories worth watching on MythicHQ.'];
 };
@@ -408,6 +411,7 @@ function AppContent() {
           <Route path="/genre/:id" element={<GenreDetail onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/upcoming" element={<Upcoming onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/search" element={<SearchPage onPlayTrailer={handlePlayTrailer} />} />
+          <Route path="/download-app" element={<DownloadAppPage />} />
           <Route path="/movie/:movieIdentifier" element={<MovieDetailsErrorBoundary><MovieDetails onPlayTrailer={handlePlayTrailer} /></MovieDetailsErrorBoundary>} />
           <Route path="/tv-show/:identifier" element={<TvShowDetails onPlayTrailer={handlePlayTrailer} />} />
           <Route path="/cast/:castMemberIdentifier" element={<CastMemberProfile />} />
