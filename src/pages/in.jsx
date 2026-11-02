@@ -780,12 +780,12 @@ const WelcomePage = () => {
               <p>Download the Android app for a focused, full-screen movie discovery experience and keep your watchlist close wherever you go.</p>
             </div>
             <div className="welcome-app-action">
-              <a className="welcome-primary-button" href="/downloads/MythicHQ.apk" download="MythicHQ.apk">
+              <Link className="welcome-primary-button" to="/download-app">
                 <Download size={17} />
                 Download the App
                 <ArrowRight size={16} />
-              </a>
-              <p className="welcome-app-note">Android only · Download the APK and follow your device's installation instructions.</p>
+              </Link>
+              <p className="welcome-app-note">See the app preview and Android installation details.</p>
             </div>
           </div>
         </section>{" "}
