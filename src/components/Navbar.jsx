@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   Film,
+  UserRound,
   Tv,
   Home,
   Flame,
@@ -29,6 +30,7 @@ import RandomPickerModal from './RandomPickerModal';
 import { fetchPublicMovies, getMovieDetailRoute } from '../services/movieCatalog';
 import { getPosterDisplayUrl } from '../services/tmdb';
 import { getProfileAvatarUrl } from '../services/profileIcons';
+import { searchCastMembers } from '../services/castMembers';
 import ViewerProfileAvatar from './ViewerProfileAvatar';
 import CropImage from './CropImage';
 import SearchClearButton from './SearchClearButton';
@@ -80,6 +82,7 @@ const Navbar = ({ onPlayTrailer }) => {
   const [profileGreetingAnimated, setProfileGreetingAnimated] = useState(false);
   const [profileGreetingVisible, setProfileGreetingVisible] = useState(false);
   const [catalogMovies, setCatalogMovies] = useState([]);
+  const [castSuggestions, setCastSuggestions] = useState([]);
 
   const searchInputRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
@@ -238,8 +241,26 @@ const Navbar = ({ onPlayTrailer }) => {
     5
   );
 
+  useEffect(() => {
+    const query = quickSearch.trim();
+    if (query.length < 2) {
+      setCastSuggestions([]);
+      return undefined;
+    }
+    let active = true;
+    const timer = window.setTimeout(() => {
+      searchCastMembers(query, { limit: 4 })
+        .then((members) => { if (active) setCastSuggestions(members); })
+        .catch((error) => {
+          console.error('Cast search is unavailable:', error);
+          if (active) setCastSuggestions([]);
+        });
+    }, 180);
+    return () => { active = false; window.clearTimeout(timer); };
+  }, [quickSearch]);
+
   const renderQuickSuggestions = () => {
-    if (normalizeSearchText(quickSearch).length < 2 || quickSuggestions.length === 0) return null;
+    if (normalizeSearchText(quickSearch).length < 2 || (quickSuggestions.length === 0 && castSuggestions.length === 0)) return null;
 
     return (
       <div className="nav-search-suggestions" aria-label="Movie suggestions">
@@ -284,6 +305,20 @@ const Navbar = ({ onPlayTrailer }) => {
             </button>
           );
         })}
+        {castSuggestions.length > 0 && (
+          <div className="nav-search-cast-group" aria-label="Cast suggestions">
+            {castSuggestions.map((member) => (
+              <button key={member.id} type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => {
+                navigate(`/cast/${encodeURIComponent(member.id)}`);
+                setQuickSearch('');
+                setSearchOpen(false);
+              }}>
+                {member.profile_image_url ? <img className="nav-search-cast-photo" src={member.profile_image_url} alt="" /> : <span className="nav-search-cast-fallback"><UserRound size={17} /></span>}
+                <span className="nav-search-suggestion-copy"><strong>{member.full_name}</strong><small>{member.profession || 'Actor'} · View movies</small></span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     );
   };
@@ -574,52 +609,7 @@ const Navbar = ({ onPlayTrailer }) => {
               <SearchClearButton value={quickSearch} onClear={() => { setQuickSearch(''); searchInputRef.current?.focus(); }} label="movie search" />
 
               {/* Search Suggestions */}
-              {normalizeSearchText(quickSearch).length >= 2 &&
-                quickSuggestions.length > 0 && (
-                  <div className="nav-search-suggestions">
-                    {quickSuggestions.map((movie) => {
-                      const posterUrl = getPosterDisplayUrl(movie.poster_path, 'w92');
-                      return (
-                        <button
-                          key={`${movie.record_type || 'movie'}-${movie.id}`}
-                          type="button"
-                          onMouseDown={(event) => event.preventDefault()}
-                          onClick={() => {
-                            navigate(getMovieDetailRoute(movie));
-                            setQuickSearch('');
-                            setSearchOpen(false);
-                          }}
-                        >
-                          <span className="nav-search-suggestion-poster-wrap">
-                            {posterUrl ? (
-                              <img
-                                className="nav-search-suggestion-poster"
-                                src={posterUrl}
-                                alt=""
-                                loading="lazy"
-                                onError={(event) => {
-                                  event.currentTarget.style.display = 'none';
-                                  event.currentTarget.nextElementSibling.style.display = 'grid';
-                                }}
-                              />
-                            ) : null}
-                            <span
-                              className="nav-search-suggestion-poster-fallback"
-                              style={{ display: posterUrl ? 'none' : 'grid' }}
-                              aria-hidden="true"
-                            >
-                              {movie.record_type === 'tv_show' ? <Tv size={15} /> : <Film size={15} />}
-                            </span>
-                          </span>
-                          <span className="nav-search-suggestion-copy">
-                            <strong>{movie.title}</strong>
-                            <small>{movie.record_type === 'tv_show' ? 'TV Show' : 'Movie'} · {movie.release_date?.slice(0, 4) || 'TBA'}</small>
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+              {renderQuickSuggestions()}
             </form>
 
             {/* =========================
