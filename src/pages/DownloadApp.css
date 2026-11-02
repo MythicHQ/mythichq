@@ -1,0 +1,75 @@
+.download-app-page {
+  display: grid;
+  min-height: min(900px, calc(100vh - 150px));
+  place-items: center;
+  padding: 34px 24px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 45%, rgba(112,32,49,.16), transparent 54%), #08090d;
+}
+
+.download-app-page .app-download {
+  width: min(100%, 1120px);
+  min-height: 690px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, .9fr);
+  grid-template-rows: auto 1fr;
+  align-items: center;
+  justify-items: center;
+  column-gap: clamp(28px, 6vw, 80px);
+  padding: 56px clamp(24px, 5vw, 64px);
+  border: 1px solid rgba(255,255,255,.075);
+  border-radius: 24px;
+  background: linear-gradient(120deg, rgba(18,19,26,.96), rgba(12,12,17,.9));
+  box-shadow: 0 30px 100px rgba(0,0,0,.38);
+}
+
+.download-app-page .app-download-glow { top: 35%; left: 73%; width: 520px; height: 520px; background: rgba(229,9,35,.15); }
+.download-app-page .app-download-copy { grid-column: 1; grid-row: 1; width: min(100%, 480px); }
+.download-app-page .app-download-brand { margin-bottom: 42px; font-size: .82rem; }
+.download-app-page .app-download-eyebrow { font-size: .7rem; }
+.download-app-page .app-download-copy h2 { max-width: 540px; font-size: clamp(2.8rem, 5.5vw, 4.8rem); }
+.download-app-page .app-download-description { max-width: 480px; margin-top: 20px; font-size: .95rem; }
+.download-app-page .app-download-visual { grid-column: 2; grid-row: 1 / 3; width: min(100%, 420px); height: 540px; margin: 0; }
+.download-app-page .app-download-orbit-one { width: 390px; height: 390px; }
+.download-app-page .app-download-orbit-two { width: 470px; height: 470px; }
+.download-app-page .app-download-phone { width: 240px; height: 420px; border-radius: 36px; }
+.download-app-page .app-download-phone-screen { border-radius: 29px; }
+.download-app-page .app-download-phone-hero { height: 184px; }
+.download-app-page .app-download-phone-nav { font-size: 11px; }
+.download-app-page .app-download-phone-caption strong { font-size: 20px; }
+.download-app-page .app-download-phone-shelf { padding: 12px 12px 0; }
+.download-app-page .app-download-phone-shelf strong { font-size: 10px; }
+.download-app-page .app-download-phone-posters img { width: 60px; height: 90px; }
+.download-app-page .app-download-controls { grid-column: 1; grid-row: 2; justify-self: start; width: min(100%, 430px); gap: 14px; }
+.download-app-page .app-download-actions { width: 100%; }
+.download-app-page .app-download-actions a { min-height: 56px; font-size: .9rem; }
+.download-app-page .app-download-note { text-align: left; }
+.download-app-page .app-download-status { text-align: left; }
+.download-app-page .app-download-help { width: 100%; }
+
+@media (max-width: 850px) {
+  .download-app-page { padding: 18px 14px; }
+  .download-app-page .app-download { min-height: 0; padding: 34px 20px; border-radius: 18px; }
+  .download-app-page .app-download-brand { margin-bottom: 27px; }
+  .download-app-page .app-download-copy h2 { font-size: clamp(2.1rem, 7vw, 3.25rem); }
+  .download-app-page .app-download-visual { height: 430px; }
+  .download-app-page .app-download-phone { width: 205px; height: 358px; }
+  .download-app-page .app-download-phone-hero { height: 155px; }
+}
+
+@media (max-width: 600px) {
+  .download-app-page { min-height: calc(100vh - 62px); padding: 0; }
+  .download-app-page .app-download { width: 100%; min-height: 0; border: 0; border-radius: 0; }
+  .download-app-page .app-download-brand { margin-bottom: 23px; }
+  .download-app-page .app-download-copy h2 { font-size: clamp(2rem, 9vw, 2.7rem); }
+  .download-app-page .app-download-visual { height: 355px; }
+  .download-app-page .app-download-phone { width: 190px; height: 332px; }
+  .download-app-page .app-download-phone-hero { height: 145px; }
+  .download-app-page .app-download-phone-posters img { width: 48px; height: 72px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .download-app-page .app-download-phone,
+  .download-app-page .app-download-poster-left,
+  .download-app-page .app-download-poster-right { animation: none; }
+}
