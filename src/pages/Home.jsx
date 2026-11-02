@@ -18,7 +18,6 @@ import HomeHero from '../components/HomeHero';
 import SkeletonCard from '../components/SkeletonCard';
 import CropImage from '../components/CropImage';
 import StudiosHomeSection from '../components/StudiosHomeSection';
-import AppDownloadSection from '../components/AppDownloadSection';
 import { fetchHomeHeroContent, fetchPublicMovies, getCachedPublicMovies, getPublicMovieSections, PUBLIC_CATALOG_CACHE_KEY } from '../services/movieCatalog';
 import { subscribeToCachedRequest } from '../services/requestCache';
 import { useLocalDate } from '../hooks/useLocalDate';
@@ -460,7 +459,6 @@ const Home = ({ onPlayTrailer, onOpenPicker }) => {
 
         <StudiosHomeSection />
       </div>
-      <AppDownloadSection />
     </div>
   );
 };
