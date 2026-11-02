@@ -1,6 +1,4 @@
-.app-download { display: none; }
-
-@media (max-width: 600px) {
+@media (min-width: 0px) {
   .app-download {
     position: relative;
     display: flex;
